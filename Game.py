@@ -24,9 +24,8 @@ class Game:
         self.catastrophe = None
         self.c_tags = None  # модифікатори катастрофи
 
-    # ------------------------------
+
     #   СТВОРЕННЯ КАТАСТРОФИ
-    # ------------------------------
     def create_catastrophe(self):
         catastrophe_modifiers = catastrophe_data.get_catastrophe()
         self.catastrophe = Catastrophe()

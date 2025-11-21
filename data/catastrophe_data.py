@@ -7,12 +7,8 @@ def get_catastrophe():
                 "weapons": 2,
                 "security": 1.6,
                 "medical": 1.3,
-                "food": 1.0,
-                "energy": 1.0,
-                "renewable": 1.0,
-                "agriculture": 1.0,
                 "engineering": 1.2,
-                "closed_spaces" : 0,
+                "closed_spaces": 0,
                 "germs": 0.5
             },
 

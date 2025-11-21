@@ -2,15 +2,15 @@ import random
 
 
 class Bunker:
-    def __init__(self):
+    def __init__(self, size_choice, item_choice, time_choice):
         self.size = {}
         self.item = {}
         self.time = {}
         self.points = 0
 
-        self.size_choice()
-        self.item_choice()
-        self.time_choice()
+        self.size_choice(size_choice)
+        self.item_choice(item_choice)
+        self.time_choice(time_choice)
 
     def size_choice(self, size_choice):
         size_name = random.choice(list(size_choice.keys()))
