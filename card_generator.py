@@ -36,16 +36,25 @@ class Bunker:
         print(self.time)
         print(self.points)
 
+    def show_bunker_as_player(self):
+        print(self.size["name"])
+        for i in self.item.keys():
+            print(i)
+        print(self.time["name"])
+        print(self.points)
+
         
 class Catastrophe:
     def __init__(self):
         self.catastrophe = {}
 
-    def generate_catastrophe(self):
-        self.choice_catastrophe()
-
     def show_catastrophe(self):
         print(self.catastrophe)
+
+    def show_catastrophe_as_player(self):
+        print(self.catastrophe["name"])
+        print("Опис:")
+        print(self.catastrophe["modifiers"]["description"])
 
     def get_catastrophe_modifiers(self):
         mods = self.catastrophe.get("modifiers", {}).copy()
@@ -99,6 +108,7 @@ class Card:
         print(self.item)
         print(self.additional_introduction)
         print(self.tag_list)
+        print(self.points)
 
     def choice_age(self):
         age_ = random.randint(16, 85)
@@ -191,6 +201,7 @@ class Card:
         (health_type, health_data), = self.health.items()
         health_base = float(health_data["type"][1])
         health_points = 1 - (health_base / 100)
+        print(f"({body_points} * {human_trait_points} * {phobia_points} * {health_points}) * ({hobby_points} + {occupation_points} + {item_points})")
         self.points = (body_points * human_trait_points * phobia_points * health_points) * (hobby_points + occupation_points + item_points)
         print(self.points)
 

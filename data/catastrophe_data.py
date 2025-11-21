@@ -27,7 +27,6 @@ def get_catastrophe():
                 "agriculture": 1.8,
                 "engineering": 1.7,
                 "closed_spaces": 0,
-                "fire": 0.5
             },
 
             "Пандемія вірусу": {

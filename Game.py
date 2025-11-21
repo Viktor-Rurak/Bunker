@@ -22,7 +22,7 @@ class Game:
         self.cards = []
         self.catastrophe = self.create_catastrophe()
         self.bunker = self.create_bunker()
-        self.c_tags = None
+
 
 
 
@@ -32,6 +32,7 @@ class Game:
         self.catastrophe = Catastrophe()
         self.catastrophe.choice_catastrophe(catastrophe_modifiers)
         self.c_tags = self.catastrophe.get_catastrophe_modifiers()
+        print(self.c_tags)
         return self.catastrophe
 
 
@@ -59,7 +60,7 @@ class Game:
             hobbies_choice=get_hobbies_choice(),
             choice_phobia=get_choice_phobia(),
             item_choice=get_item_choice(),
-            additional_info=get_additional_info()
+            additional_info=get_additional_info(),
         )
 
         # якщо вже створена катастрофа — рахуємо пойнти
@@ -75,5 +76,10 @@ class Game:
         return [self.create_card() for _ in range(amount)]
 
     def show_game(self):
-        self.catastrophe.show_catastrophe()
-        self.bunker.show_bunker()
+        print("Катастрофа:")
+        self.catastrophe.show_catastrophe_as_player()
+        print("\n\nБункер:")
+        self.bunker.show_bunker_as_player()
+        for i in self.cards:
+            print()
+            i.show_card()
