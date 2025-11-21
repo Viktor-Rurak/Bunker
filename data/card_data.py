@@ -143,7 +143,7 @@ def get_hobbies_choice():
         "Консервація та ферментація": {"base": 15, "tags": ["cooking", "preservation", "sanitation"]},
         "Кулінарія": {"base": 15, "tags": ["cooking", "food"]},
         "Сироробство": {"base": 10, "tags": ["food", "preservation", "dairy"]},
-        "М’ясництво)": {"base": 15, "tags": ["food", "butchery", "hygiene"]},
+        "М’ясництв)": {"base": 15, "tags": ["food", "butchery", "hygiene"]},
         "Столярство": {"base": 10, "tags": ["woodworking", "shielding", "repair"]},
         "Ковальство": {"base": 10, "tags": ["blacksmithing", "tools", "weapons"]},
         "Ремонт електроніки": {"base": 15, "tags": ["electronics", "repair"]},
