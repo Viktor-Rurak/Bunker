@@ -112,8 +112,10 @@ class Card:
 
     def choice_age(self):
         age_ = random.randint(16, 85)
-        parenthood = random.random() < (0.6 if age_ < 55 else 0.2)
+        prob =  80 if age_ < 30 else 50 if age_ < 40 else 20 if age_ < 50 else 10 if age_ < 60 else 0.0
+        parenthood = random.randint(1,100) < prob
         self.age = {"age": age_, "parenthood": parenthood}
+
 
     def choice_gender(self, gender):
         self.gender = random.choice(gender)
@@ -201,9 +203,14 @@ class Card:
         (health_type, health_data), = self.health.items()
         health_base = float(health_data["type"][1])
         health_points = 1 - (health_base / 100)
+
         print(f"({body_points} * {human_trait_points} * {phobia_points} * {health_points}) * ({hobby_points} + {occupation_points} + {item_points})")
+
         self.points = (body_points * human_trait_points * phobia_points * health_points) * (hobby_points + occupation_points + item_points)
         print(self.points)
+
+    def __del__(self):
+        print("Card was deleted")
 
 
 #Перемноження значень тегів і тегів катастрофи
