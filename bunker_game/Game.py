@@ -20,18 +20,19 @@ import data.catastrophe_data as catastrophe_data
 class Game:
     def __init__(self):
         self.cards = []
-        self.bunker = None
-        self.catastrophe = None
-        self.c_tags = None  # модифікатори катастрофи
+        self.catastrophe = self.create_catastrophe()
+        self.bunker = self.create_bunker()
 
-    # ------------------------------
+
+
+
     #   СТВОРЕННЯ КАТАСТРОФИ
-    # ------------------------------
     def create_catastrophe(self):
         catastrophe_modifiers = catastrophe_data.get_catastrophe()
         self.catastrophe = Catastrophe()
         self.catastrophe.choice_catastrophe(catastrophe_modifiers)
         self.c_tags = self.catastrophe.get_catastrophe_modifiers()
+        print(self.c_tags)
         return self.catastrophe
 
 
@@ -40,7 +41,7 @@ class Game:
         size_choice = Bunker_data.get_size()
         item_choice = Bunker_data.get_item()
         time_choice = Bunker_data.get_time()
-        self.bunker = Bunker()
+        self.bunker = Bunker(size_choice, item_choice, time_choice)
         self.bunker.size_choice(size_choice)
         self.bunker.item_choice(item_choice)
         self.bunker.time_choice(time_choice)
@@ -59,7 +60,7 @@ class Game:
             hobbies_choice=get_hobbies_choice(),
             choice_phobia=get_choice_phobia(),
             item_choice=get_item_choice(),
-            additional_info=get_additional_info()
+            additional_info=get_additional_info(),
         )
 
         # якщо вже створена катастрофа — рахуємо пойнти
@@ -73,3 +74,12 @@ class Game:
     #   СТВОРЕННЯ КІЛЬКОХ КАРТ
     def create_cards(self, amount):
         return [self.create_card() for _ in range(amount)]
+
+    def show_game(self):
+        print("Катастрофа:")
+        self.catastrophe.show_catastrophe_as_player()
+        print("\n\nБункер:")
+        self.bunker.show_bunker_as_player()
+        for i in self.cards:
+            print()
+            i.show_card()

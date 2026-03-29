@@ -1,0 +1,35 @@
+[33mcommit 8e295711de6e56998758e502826c27fc78a3cb66[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: mstaberg <vitya333rurak@gmail.com>
+Date:   Sun Mar 29 19:31:03 2026 +0300
+
+    structured project
+
+[33mcommit b9f47cc4720f633ecd55d21aeb3ccb73f730f936[m
+Author: mstaberg <vitya333rurak@gmail.com>
+Date:   Sat Mar 28 15:15:09 2026 +0200
+
+    Main version
+
+[33mcommit 8ff4713d472eb59a54315e13348983d584fe3511[m
+Author: Viktor-Rurak <rurak.viktor@chnu.edu.ua>
+Date:   Fri Nov 21 22:12:18 2025 +0200
+
+    Додав вивід
+
+[33mcommit 25abe09808cbb2b0ad39e857af6d385b08354713[m
+Author: Viktor-Rurak <rurak.viktor@chnu.edu.ua>
+Date:   Fri Nov 21 20:55:22 2025 +0200
+
+    Додав вивід
+
+[33mcommit db62071817cbd3553c1d2864158d44e1c18fbf5a[m
+Author: Viktor-Rurak <rurak.viktor@chnu.edu.ua>
+Date:   Fri Nov 21 20:38:28 2025 +0200
+
+    Відновлена card_data
+
+[33mcommit 360cf253c08f7402d39a5de5d9d6d3b825b43587[m
+Author: Viktor-Rurak <rurak.viktor@chnu.edu.ua>
+Date:   Fri Nov 21 19:51:06 2025 +0200
+
+    initial commit

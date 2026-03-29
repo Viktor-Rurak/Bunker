@@ -2,15 +2,15 @@ import random
 
 
 class Bunker:
-    def __init__(self):
+    def __init__(self, size_choice, item_choice, time_choice):
         self.size = {}
         self.item = {}
         self.time = {}
         self.points = 0
 
-        self.size_choice()
-        self.item_choice()
-        self.time_choice()
+        self.size_choice(size_choice)
+        self.item_choice(item_choice)
+        self.time_choice(time_choice)
 
     def size_choice(self, size_choice):
         size_name = random.choice(list(size_choice.keys()))
@@ -36,16 +36,25 @@ class Bunker:
         print(self.time)
         print(self.points)
 
+    def show_bunker_as_player(self):
+        print(self.size["name"])
+        for i in self.item.keys():
+            print(i)
+        print(self.time["name"])
+        print(self.points)
+
         
 class Catastrophe:
     def __init__(self):
         self.catastrophe = {}
 
-    def generate_catastrophe(self):
-        self.choice_catastrophe()
-
     def show_catastrophe(self):
         print(self.catastrophe)
+
+    def show_catastrophe_as_player(self):
+        print(self.catastrophe["name"])
+        print("Опис:")
+        print(self.catastrophe["modifiers"]["description"])
 
     def get_catastrophe_modifiers(self):
         mods = self.catastrophe.get("modifiers", {}).copy()
@@ -99,11 +108,14 @@ class Card:
         print(self.item)
         print(self.additional_introduction)
         print(self.tag_list)
+        print(self.points)
 
     def choice_age(self):
         age_ = random.randint(16, 85)
-        parenthood = random.random() < (0.6 if age_ < 55 else 0.2)
+        prob =  80 if age_ < 30 else 50 if age_ < 40 else 20 if age_ < 50 else 10 if age_ < 60 else 0.0
+        parenthood = random.randint(1,100) < prob
         self.age = {"age": age_, "parenthood": parenthood}
+
 
     def choice_gender(self, gender):
         self.gender = random.choice(gender)
@@ -191,8 +203,14 @@ class Card:
         (health_type, health_data), = self.health.items()
         health_base = float(health_data["type"][1])
         health_points = 1 - (health_base / 100)
+
+        print(f"({body_points} * {human_trait_points} * {phobia_points} * {health_points}) * ({hobby_points} + {occupation_points} + {item_points})")
+
         self.points = (body_points * human_trait_points * phobia_points * health_points) * (hobby_points + occupation_points + item_points)
         print(self.points)
+
+    def __del__(self):
+        print("Card was deleted")
 
 
 #Перемноження значень тегів і тегів катастрофи
