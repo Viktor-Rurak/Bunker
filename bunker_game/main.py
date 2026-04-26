@@ -1,10 +1,7 @@
-import random
-import card_generator as cg
+from Game import Game
 
+game = Game()
 
-Catastrophe = cg.Catastrophe()
-Catastrophe.generate_catastrophe()
-Catastrophe.show_catastrophe()
-card = cg.Card()
-card.generate_card()
-card.show_card()
+players = int(input("Скільки гравців? "))
+game.create_cards(players)
+game.show_game()

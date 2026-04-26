@@ -204,9 +204,13 @@ class Card:
         health_base = float(health_data["type"][1])
         health_points = 1 - (health_base / 100)
 
-        print(f"({body_points} * {human_trait_points} * {phobia_points} * {health_points}) * ({hobby_points} + {occupation_points} + {item_points})")
+        (add_name, add_data), = self.additional_introduction.items()
+        add_tag = add_data.get("tag", "")
+        additional_introduction_points = tag_calculation(1, [add_tag], c_tags)
 
-        self.points = (body_points * human_trait_points * phobia_points * health_points) * (hobby_points + occupation_points + item_points)
+        print(f"({additional_introduction_points} * {body_points} * {human_trait_points} * {phobia_points} * {health_points}) * ({hobby_points} + {occupation_points} + {item_points})")
+
+        self.points = (body_points * human_trait_points * phobia_points * health_points * additional_introduction_points) * (hobby_points + occupation_points + item_points)
         print(self.points)
 
     def __del__(self):
@@ -221,6 +225,7 @@ def tag_calculation(base, tags, c_tags):
             multiply *= c_tags[tag]
 
     return base * multiply
+
 
 #Дістає значення з однозначної характеристики
 def only_value(d, default=None):
