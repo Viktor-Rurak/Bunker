@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAULT-TEC // СХОВИЩЕ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+</head>
+<body>
+
+<!-- ── LOBBY ── -->
+<div id="lobby-screen">
+  <div class="lobby-box">
+    <div class="lobby-title">ОЧІКУВАННЯ МЕШКАНЦІВ</div>
+    <div class="lobby-hint">// ПОДІЛІТЬСЯ КОДОМ ДОСТУПУ //</div>
+    <div class="lobby-code" id="lobby-code-display" onclick="copyCode()">{{ room_code }}</div>
+    <div class="lobby-hint">НАТИСНІТЬ ЩОБ СКОПІЮВАТИ</div>
+    <div class="lobby-players" id="lobby-player-list"></div>
+    <button class="lobby-start-btn" id="start-btn" disabled onclick="startGame()">
+      ☢ ЗАПУСТИТИ ПРОТОКОЛ ☢
+    </button>
+    <div class="lobby-waiting" id="lobby-status">ВСТАНОВЛЕННЯ З'ЄДНАННЯ...</div>
+  </div>
+</div>
+
+<!-- ── VOTING ── -->
+<div id="voting-overlay">
+  <div class="voting-box">
+    <div class="voting-title">ГОЛОСУВАННЯ</div>
+    <div class="voting-subtitle" id="voting-subtitle">КОГО ВИКЛЮЧИТИ ЗІ СХОВИЩА?</div>
+    <div class="vote-options" id="vote-options"></div>
+    <div class="vote-progress" id="vote-progress"></div>
+  </div>
+</div>
+
+<!-- ── KICK RESULT ── -->
+<div id="kick-overlay">
+  <div class="kick-box">
+    <div class="kick-big">ВИКЛЮЧЕНО</div>
+    <div class="kick-name"  id="kick-name"></div>
+    <div class="kick-votes" id="kick-votes-detail"></div>
+    <button class="kick-continue" onclick="closeKickOverlay()">[ ПРОДОВЖИТИ ]</button>
+  </div>
+</div>
+
+<!-- ── GAME OVER ── -->
+<div id="gameover-overlay">
+  <div class="gameover-box">
+    <div class="gameover-title" id="gameover-title"></div>
+    <div class="gameover-sub"   id="gameover-sub"></div>
+    <div class="survivor-list"  id="survivor-list"></div>
+    <div class="points-summary" id="points-summary"></div>
+
+    <div class="story-block" id="story-block" style="display:none">
+      <div class="story-title">>> ЗВІТ ПРО ВИЖИВАННЯ // VAULT-TEC</div>
+      <div class="story-text" id="story-text"></div>
+    </div>
+    <div class="story-loading" id="story-loading" style="display:none">
+      ГЕНЕРАЦІЯ ЗВІТУ... ██████░░░░
+    </div>
+
+    <button class="play-again" onclick="location.href='/'">[ НОВА СИМУЛЯЦІЯ ]</button>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-logo">БУНКЕР</div>
+  <div class="room-code">КОД: <span onclick="copyCode()">{{ room_code }}</span></div>
+  <div class="round-badge" id="round-badge">ЛОБІ</div>
+</div>
+
+<!-- ── MAIN LAYOUT ── -->
+<div class="main">
+
+  <!-- LEFT: Info + Log -->
+  <div class="col" id="col-left">
+    <div class="panel" id="catastrophe-panel" style="display:none">
+      <div class="panel-title">Загроза</div>
+      <div class="catastrophe-name" id="cat-name"></div>
+      <div class="catastrophe-desc" id="cat-desc"></div>
+    </div>
+    <div class="panel" id="bunker-panel" style="display:none">
+      <div class="panel-title">Сховище</div>
+      <div id="bunker-info"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Системний журнал</div>
+      <div class="event-log" id="event-log"></div>
+    </div>
+  </div>
+
+  <!-- CENTER: Players -->
+  <div class="col">
+    <div class="players-grid" id="players-grid"></div>
+  </div>
+
+  <!-- RIGHT: My card -->
+  <div class="col" id="col-right">
+    <div class="my-card-panel" id="my-card-panel" style="display:none">
+      <div class="my-card">
+        <div class="my-card-title">МОЄ ДОСЬЄ</div>
+        <div class="reveal-counter" id="reveal-counter"></div>
+        <div class="my-char-list"   id="my-char-list"></div>
+        <div class="reveal-hint"    id="reveal-hint" style="display:none">
+          ↑ ОБЕРІТЬ ХАРАКТЕРИСТИКУ ДЛЯ РОЗКРИТТЯ
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<script>const ROOM_CODE = '{{ room_code }}';</script>
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>
