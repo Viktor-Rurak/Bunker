@@ -1,4 +1,5 @@
 import random
+from data.action_data import deal_action_cards, deal_elimination_card
 
 
 class Bunker:
@@ -7,7 +8,6 @@ class Bunker:
         self.item = {}
         self.time = {}
         self.points = 0
-
         self.size_choice(size_choice)
         self.item_choice(item_choice)
         self.time_choice(time_choice)
@@ -24,7 +24,6 @@ class Bunker:
             self.item[item_name] = item_choice[item_name]
             self.points += item_choice[item_name]["base"]
             item_choice.pop(item_name)
-
 
     def time_choice(self, time_choice):
         time_name = random.choice(list(time_choice.keys()))
@@ -43,7 +42,7 @@ class Bunker:
         print(self.time["name"])
         print(self.points)
 
-        
+
 class Catastrophe:
     def __init__(self):
         self.catastrophe = {}
@@ -62,11 +61,11 @@ class Catastrophe:
         return mods
 
     def choice_catastrophe(self, catastrophe_modifiers):
-        catastrophe_name = random.choice(list(catastrophe_modifiers.keys()))
-        self.catastrophe = {"name": catastrophe_name, "modifiers": catastrophe_modifiers[catastrophe_name]}
-
-
-
+        name = random.choice(list(catastrophe_modifiers.keys()))
+        self.catastrophe = {
+            "name": name,
+            "modifiers": catastrophe_modifiers[name]
+        }
 
 
 class Card:
@@ -81,10 +80,16 @@ class Card:
         self.phobia = {}
         self.item = {}
         self.additional_introduction = {}
-        self.special_ability = ""
+        self.action_cards = []
+        self.elimination_card = None
         self.tag_list = []
         self.points = 0
-    def generate_card(self, body_constitution, occupation_choice, gender, traits, choice_disease, hobbies_choice, choice_phobia, item_choice, additional_info):
+
+    def generate_card(
+        self, body_constitution, occupation_choice, gender,
+        traits, choice_disease, hobbies_choice,
+        choice_phobia, item_choice, additional_info
+    ):
         self.choice_age()
         self.choice_gender(gender)
         self.choice_body_constitution(body_constitution)
@@ -95,6 +100,11 @@ class Card:
         self.choice_phobia(choice_phobia)
         self.choice_item(item_choice)
         self.choice_additional_introduction(additional_info)
+        self.action_cards = deal_action_cards(num_cards=2)
+
+    def eliminate(self):
+        self.elimination_card = deal_elimination_card()
+        return self.elimination_card
 
     def show_card(self):
         print(self.age)
@@ -109,126 +119,138 @@ class Card:
         print(self.additional_introduction)
         print(self.tag_list)
         print(self.points)
+        print("Карти дій:")
+        for ac in self.action_cards:
+            char = ac.get("characteristic") or ""
+            suffix = f" ({char})" if char else ""
+            print(f"  [{ac['name']}{suffix}]")
+        if self.elimination_card:
+            name = self.elimination_card["name"]
+            print(f"Карта помсти: [{name}]")
 
     def choice_age(self):
         age_ = random.randint(16, 85)
-        prob =  80 if age_ < 30 else 50 if age_ < 40 else 20 if age_ < 50 else 10 if age_ < 60 else 0.0
-        parenthood = random.randint(1,100) < prob
+        if age_ < 30:
+            prob = 80
+        elif age_ < 40:
+            prob = 50
+        elif age_ < 50:
+            prob = 20
+        elif age_ < 60:
+            prob = 10
+        else:
+            prob = 0
+        parenthood = random.randint(1, 100) < prob
         self.age = {"age": age_, "parenthood": parenthood}
-
 
     def choice_gender(self, gender):
         self.gender = random.choice(gender)
 
-    def choice_body_constitution(self, body_constitution): #max 50
-        body_constitution_choice = random.choice(list(body_constitution.keys()))
-        self.body_constitution[body_constitution_choice] = body_constitution[body_constitution_choice]
-
+    def choice_body_constitution(self, body_constitution):
+        choice = random.choice(list(body_constitution.keys()))
+        self.body_constitution[choice] = body_constitution[choice]
 
     def choice_occupation(self, occupation_choice):
-
-        choice_the_occupation = random.choice(list(occupation_choice.keys()))
-        self.occupation[choice_the_occupation] = occupation_choice[choice_the_occupation]
-
-        self.tag_list.append(self.occupation[choice_the_occupation]["tags"])
+        choice = random.choice(list(occupation_choice.keys()))
+        self.occupation[choice] = occupation_choice[choice]
+        self.tag_list.append(self.occupation[choice]["tags"])
 
     def choice_human_trait(self, traits):
         name, data = random.choice(list(traits.items()))
         self.human_trait[name] = data
 
     def choice_health(self, choice_disease):
-        if random.randint(0,100) < 50:
+        if random.randint(0, 100) < 50:
+            weights = [
+                100 - choice_disease[d]["type"][1]
+                for d in choice_disease
+            ]
             disease = random.choices(
                 population=list(choice_disease.keys()),
-                weights=[100 - choice_disease[d]["type"][1] for d in choice_disease],
+                weights=weights,
                 k=1
             )[0]
             self.health[disease] = choice_disease[disease]
         else:
-            self.health = {"Ідеальнний стан": {"type": ["Ідеальний", 0]}}
-
+            self.health = {
+                "Ідеальнний стан": {"type": ["Ідеальний", 0]}
+            }
 
     def choice_hobby(self, hobbies_choice):
-        choice_hobby = random.choice(list(hobbies_choice.keys()))
-        self.hobby[choice_hobby] = hobbies_choice[choice_hobby]
-
+        choice = random.choice(list(hobbies_choice.keys()))
+        self.hobby[choice] = hobbies_choice[choice]
 
     def choice_phobia(self, choice_phobia):
-        choice_the_phobia = random.choice(list(choice_phobia.keys()))
-        self.phobia[choice_the_phobia] = choice_phobia[choice_the_phobia]
+        choice = random.choice(list(choice_phobia.keys()))
+        self.phobia[choice] = choice_phobia[choice]
 
     def choice_item(self, item_choice):
         item = random.choice(list(item_choice.keys()))
         self.item[item] = item_choice[item]
 
     def choice_additional_introduction(self, additional_info):
-        choice_additional_introduction = random.choice(list(additional_info.keys()))
-        self.additional_introduction[choice_additional_introduction] = additional_info[choice_additional_introduction]
-
-
+        choice = random.choice(list(additional_info.keys()))
+        self.additional_introduction[choice] = additional_info[choice]
 
     def card_calculation(self, c_tags):
+        # Робота
+        (occ_name, occ_data), = self.occupation.items()
+        occ_base = float(occ_data["base"])
+        occ_tags = occ_data.get("tags", [])
+        occ_pts = tag_calculation(occ_base, occ_tags, c_tags)
 
-        #Розрахунок пойнтів за роботу
-        (occupation_name, occupation_data), = self.occupation.items()
-        occupation_base = float(occupation_data["base"])
-        occupation_tags = occupation_data.get("tags", [])
-        occupation_points = tag_calculation(occupation_base, occupation_tags, c_tags)
-
-        #Розрахунок пойнтів за предмет
+        # Предмет
         (item_name, item_data), = self.item.items()
         item_base = float(item_data["base"])
         item_tags = item_data.get("tags", [])
-        item_points = tag_calculation(item_base, item_tags, c_tags)
+        item_pts = tag_calculation(item_base, item_tags, c_tags)
 
-        #Получаємо множник за тег фобії
+        # Фобія
         (phobia_name, phobia_data), = self.phobia.items()
         phobia_tag = phobia_data["tag"]
-        if phobia_tag in c_tags:
-            phobia_points = c_tags[phobia_tag]
+        phobia_pts = c_tags.get(phobia_tag, 1)
 
-        else: phobia_points = 1
-
-        # Розрахунок пойнтів за хобі
+        # Хобі
         (hobby_name, hobby_data), = self.hobby.items()
         hobby_base = float(hobby_data["base"])
         hobby_tags = hobby_data.get("tags", [])
-        hobby_points = tag_calculation(hobby_base, hobby_tags, c_tags)
+        hobby_pts = tag_calculation(hobby_base, hobby_tags, c_tags)
 
-        # Розрахунок множника за тіло і характер
-        body_points = only_value(self.body_constitution)
-        human_trait_points = only_value(self.human_trait)
+        # Тіло і характер
+        body_pts = only_value(self.body_constitution)
+        trait_pts = only_value(self.human_trait)
 
-        #Получаємо множник за здоров'я
+        # Здоров'я
         (health_type, health_data), = self.health.items()
         health_base = float(health_data["type"][1])
-        health_points = 1 - (health_base / 100)
+        health_pts = 1 - (health_base / 100)
 
+        # Додаткова інфо
         (add_name, add_data), = self.additional_introduction.items()
         add_tag = add_data.get("tag", "")
-        additional_introduction_points = tag_calculation(1, [add_tag], c_tags)
+        add_pts = tag_calculation(1, [add_tag], c_tags)
 
-        print(f"({additional_introduction_points} * {body_points} * {human_trait_points} * {phobia_points} * {health_points}) * ({hobby_points} + {occupation_points} + {item_points})")
+        print(
+            f"({add_pts} * {body_pts} * {trait_pts}"
+            f" * {phobia_pts} * {health_pts})"
+            f" * ({hobby_pts} + {occ_pts} + {item_pts})"
+        )
 
-        self.points = (body_points * human_trait_points * phobia_points * health_points * additional_introduction_points) * (hobby_points + occupation_points + item_points)
+        mult = body_pts * trait_pts * phobia_pts * health_pts * add_pts
+        self.points = mult * (hobby_pts + occ_pts + item_pts)
         print(self.points)
 
     def __del__(self):
         print("Card was deleted")
 
 
-#Перемноження значень тегів і тегів катастрофи
 def tag_calculation(base, tags, c_tags):
     multiply = 1
     for tag in tags:
         if tag in c_tags:
             multiply *= c_tags[tag]
-
     return base * multiply
 
 
-#Дістає значення з однозначної характеристики
 def only_value(d, default=None):
     return next(iter(d.values()), default)
-
-

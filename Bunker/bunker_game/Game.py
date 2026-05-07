@@ -7,6 +7,7 @@ from data.card_data import (
 )
 import data.Bunker_data as Bunker_data
 import data.catastrophe_data as catastrophe_data
+from data.action_data import get_action_cards
 
 
 class Game:
@@ -50,6 +51,11 @@ class Game:
     def create_cards(self, amount):
         return [self.create_card() for _ in range(amount)]
 
+    def eliminate_player(self, card):
+        """Виключає гравця: видає йому карту помсти і повертає її."""
+        elimination_card = card.eliminate()
+        return elimination_card
+
     def to_dict(self):
         return {
             "catastrophe": {
@@ -63,6 +69,27 @@ class Game:
                 "points": self.bunker.points
             }
         }
+
+    def cards_to_dict(self):
+        """Повертає список карток гравців з картами дій."""
+        result = []
+        for card in self.cards:
+            result.append({
+                "age": card.age,
+                "gender": card.gender,
+                "body_constitution": list(card.body_constitution.keys())[0],
+                "human_trait": list(card.human_trait.keys())[0],
+                "occupation": list(card.occupation.keys())[0],
+                "health": list(card.health.keys())[0],
+                "hobby": list(card.hobby.keys())[0],
+                "phobia": list(card.phobia.keys())[0],
+                "item": list(card.item.keys())[0],
+                "additional_introduction": list(card.additional_introduction.keys())[0],
+                "points": card.points,
+                "action_cards": card.action_cards,
+                "elimination_card": card.elimination_card,
+            })
+        return result
 
     def show_game(self):
         print("Катастрофа:")

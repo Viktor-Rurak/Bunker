@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAULT-TEC // БУНКЕР</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+<div class="container">
+
+  <div class="logo">
+    <div class="logo-top">VAULT-TEC CORPORATION // ТЕРМІНАЛ v2.3.1</div>
+    <h1>БУНКЕР</h1>
+    <p class="subtitle">протокол виживання</p>
+    <p class="vault-number">☢ ЛАСКАВО ПРОСИМО ДО СХОВИЩА ☢</p>
+  </div>
+
+  <div class="card">
+    <h2>Створити кімнату</h2>
+    <div class="input-group">
+      <label>Ідентифікатор мешканця</label>
+      <input type="text" id="create-name" placeholder="ВВЕДІТЬ ІМ'Я_" maxlength="20" autocomplete="off">
+    </div>
+    <button class="btn-primary" onclick="createRoom()">Ініціалізувати сховище</button>
+    <div class="error-msg" id="create-error"></div>
+  </div>
+
+  <div class="divider">// або //</div>
+
+  <div class="card">
+    <h2>Приєднатись</h2>
+    <div class="input-group">
+      <label>Ідентифікатор мешканця</label>
+      <input type="text" id="join-name" placeholder="ВВЕДІТЬ ІМ'Я_" maxlength="20" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label>Код доступу до сховища</label>
+      <input type="text" id="join-code" placeholder="XXXXXX" maxlength="6" autocomplete="off">
+    </div>
+    <button class="btn-secondary" onclick="joinRoom()">Запит на доступ</button>
+    <div class="error-msg" id="join-error"></div>
+  </div>
+
+</div>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>
