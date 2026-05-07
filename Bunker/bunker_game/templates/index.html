@@ -5,8 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VAULT-TEC // БУНКЕР</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <style>
+    .user-bar {
+      position: fixed; top: 0; right: 0;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px;
+      font-size: 0.7rem; letter-spacing: 1px; color: var(--muted);
+      z-index: 50;
+    }
+    .user-bar span { color: var(--pip); }
+    .user-bar button {
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 1px; padding: 4px 10px;
+      cursor: pointer; transition: color .2s, border-color .2s;
+    }
+    .user-bar button:hover { color: var(--rust); border-color: var(--rust); }
+  </style>
 </head>
 <body>
+
+<div class="user-bar">
+  // мешканець: <span>{{ username }}</span>
+  <button onclick="doLogout()">ВИЙТИ З АКАУНТУ</button>
+</div>
+
 <div class="container">
 
   <div class="logo">
@@ -18,10 +41,6 @@
 
   <div class="card">
     <h2>Створити кімнату</h2>
-    <div class="input-group">
-      <label>Ідентифікатор мешканця</label>
-      <input type="text" id="create-name" placeholder="ВВЕДІТЬ ІМ'Я_" maxlength="20" autocomplete="off">
-    </div>
     <button class="btn-primary" onclick="createRoom()">Ініціалізувати сховище</button>
     <div class="error-msg" id="create-error"></div>
   </div>
@@ -30,10 +49,6 @@
 
   <div class="card">
     <h2>Приєднатись</h2>
-    <div class="input-group">
-      <label>Ідентифікатор мешканця</label>
-      <input type="text" id="join-name" placeholder="ВВЕДІТЬ ІМ'Я_" maxlength="20" autocomplete="off">
-    </div>
     <div class="input-group">
       <label>Код доступу до сховища</label>
       <input type="text" id="join-code" placeholder="XXXXXX" maxlength="6" autocomplete="off">
@@ -44,5 +59,11 @@
 
 </div>
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+<script>
+async function doLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/auth';
+}
+</script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 const socket = io();
 
 // ── STATE ──
-let myName          = sessionStorage.getItem('player_name') || 'Гравець';
+let myName          = typeof MY_USERNAME !== 'undefined' ? MY_USERNAME : 'Гравець';
 let mySid           = null;
 let isHost          = false;
 let myCard          = null;
@@ -14,20 +14,46 @@ let gameStarted     = false;
 
 // ── CONNECT ──
 socket.on('connect', () => {
-  console.log('[RC] connect, sending join_room: code=' + ROOM_CODE + ' name=' + myName);
-  socket.emit('join_room', { code: ROOM_CODE, name: myName });
+  console.log('[SOCKET] connected, emitting join_room with code:', ROOM_CODE);
+  socket.emit('join_room', { code: ROOM_CODE });
 });
 
-socket.on('error', data => {
-  console.log('[RC] error:', data.msg);
+socket.on('connect_error', (err) => {
+  console.error('[SOCKET] connect_error:', err.message);
+  document.getElementById('lobby-status').textContent = 'Помилка з\'єднання: ' + err.message;
+});
+
+socket.on('disconnect', (reason) => {
+  console.warn('[SOCKET] disconnected:', reason);
+});
+
+// ── LEAVE GAME ──
+async function leaveGame() {
+  if (!confirm('Вийти з гри та повернутись на головну?')) return;
+  await fetch('/api/leave_game', { method: 'POST' });
+  window.location.href = '/';
+};
+
+socket.on('join_error', data => {
+  console.error('[SOCKET] join_error:', data.msg);
   addLog('⚠ ' + data.msg, 'danger');
   if (!gameStarted) {
     document.getElementById('lobby-status').textContent = data.msg;
   }
 });
 
+// keep legacy error listener too
+socket.on('error', data => {
+  if (data && data.msg) {
+    addLog('⚠ ' + data.msg, 'danger');
+    if (!gameStarted) {
+      document.getElementById('lobby-status').textContent = data.msg;
+    }
+  }
+});
+
 socket.on('joined', data => {
-  console.log('[RC] joined:', data);
+  console.log('[SOCKET] joined:', data);
   mySid   = data.sid;
   isHost  = data.is_host;
   document.getElementById('lobby-status').textContent =
@@ -55,7 +81,7 @@ socket.on('player_reconnected', data => {
 
 // ── GAME START ──
 socket.on('game_started', data => {
-  console.log('[RC] game_started received, round=' + data.round);
+  
   gameStarted      = true;
   myCard           = data.my_card;
   currentRound     = data.round;
@@ -136,7 +162,7 @@ socket.on('player_kicked', data => {
 });
 
 // ── NEXT ROUND ──
-socket.on('round_update', data => {
+socket.on('new_round', data => {
   currentRound     = data.round;
   revealsAllowed   = data.reveals_this_round;
   revealsThisRound = 0;
@@ -240,8 +266,9 @@ function renderAllPlayers(players) {
   grid.innerHTML = '';
 
   players.forEach(p => {
-    const totalHidden   = p.total_characteristics - p.revealed.length;
-    const revealedChips = p.revealed.map(c => `
+    const totalChars    = p.total_characteristics || 10;
+    const totalHidden   = Math.max(0, totalChars - (p.revealed || []).length);
+    const revealedChips = (p.revealed || []).map(c => `
       <div class="char-chip">
         <span class="chip-icon">${c.icon}</span>
         <div><div class="chip-label">${c.label}</div><div>${c.value}</div></div>
@@ -507,13 +534,14 @@ function logActionResult(data) {
   } else if (e.type === 'masquerade') {
     msg += ': обмін профессіями з ' + e.target_name;
     addLog(msg, 'highlight');
-  } else if (e.type === 'anonymous_report') {
-    addLog(msg + ' (тільки вам)', 'highlight');
-  } else if (e.type === 'symbiosis') {
-    msg += ': союз з ' + e.target_name + ' (+10% обом)';
+  } else if (e.type === 'alliance') {
+    msg += ': союз з ' + e.target_name;
     addLog(msg, 'highlight');
-  } else if (e.type === 'evolution') {
-    msg += ': нова [' + e.char_label + '] = ' + e.new_value;
+  } else if (e.type === 'points_transfer') {
+    msg += ': +' + e.amount + ' балів від ' + e.target_name;
+    addLog(msg, 'highlight');
+  } else if (e.type === 'immunity') {
+    msg += ': імунітет активовано';
     addLog(msg, 'highlight');
   } else {
     addLog(msg, 'highlight');

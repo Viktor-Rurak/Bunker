@@ -143,7 +143,22 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
-<script>const ROOM_CODE = '{{ room_code }}';</script>
+<script>
+  const ROOM_CODE = '{{ room_code }}';
+  const MY_USERNAME = '{{ username }}';
+</script>
 <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+
+<style>
+  .leave-btn {
+    position: fixed; bottom: 18px; left: 18px; z-index: 200;
+    background: none; border: 1px solid #3d1000;
+    color: #5a2200; font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 2px; padding: 6px 12px;
+    cursor: pointer; transition: color .2s, border-color .2s;
+  }
+  .leave-btn:hover { color: #ff6b6b; border-color: #ff6b6b; }
+</style>
+<button class="leave-btn" onclick="leaveGame()">✕ ВИЙТИ З ГРИ</button>
 </body>
 </html>

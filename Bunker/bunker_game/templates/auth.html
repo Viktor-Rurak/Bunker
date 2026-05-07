@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAULT-TEC // АВТОРИЗАЦІЯ</title>
+  <link rel="stylesheet" href="/static/css/auth.css">
+</head>
+<body>
+
+<div class="auth-card">
+  <div class="auth-logo">
+    <h1>VAULT-TEC</h1>
+    <p>// ІДЕНТИФІКАЦІЯ МЕШКАНЦЯ //</p>
+  </div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" id="tab-login"  onclick="switchTab('login')">ВХІД</button>
+    <button class="auth-tab"        id="tab-reg"    onclick="switchTab('reg')">РЕЄСТРАЦІЯ</button>
+  </div>
+
+  <!-- ВХІД -->
+  <form class="auth-form visible" id="form-login" onsubmit="doLogin(event)">
+    <div>
+      <div class="field-label">Нікнейм</div>
+      <input class="auth-input" id="login-username" type="text"
+             placeholder="vault_dweller" autocomplete="username" required>
+    </div>
+    <div>
+      <div class="field-label">Пароль</div>
+      <input class="auth-input" id="login-password" type="password"
+             placeholder="••••••••" autocomplete="current-password" required>
+    </div>
+    <div class="auth-msg" id="login-msg"></div>
+    <button class="auth-btn" type="submit">⚙ УВІЙТИ В СХОВИЩЕ</button>
+  </form>
+
+  <!-- РЕЄСТРАЦІЯ -->
+  <form class="auth-form" id="form-reg" onsubmit="doRegister(event)">
+    <div>
+      <div class="field-label">Нікнейм (мін. 2 символи)</div>
+      <input class="auth-input" id="reg-username" type="text"
+             placeholder="vault_dweller" autocomplete="username" required>
+    </div>
+    <div>
+      <div class="field-label">Пароль (мін. 4 символи)</div>
+      <input class="auth-input" id="reg-password" type="password"
+             placeholder="••••••••" autocomplete="new-password" required>
+    </div>
+    <div>
+      <div class="field-label">Підтвердження пароля</div>
+      <input class="auth-input" id="reg-confirm" type="password"
+             placeholder="••••••••" autocomplete="new-password" required>
+    </div>
+    <div class="auth-msg" id="reg-msg"></div>
+    <button class="auth-btn" type="submit">✦ ЗАРЕЄСТРУВАТИСЯ</button>
+  </form>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.getElementById('form-login').classList.toggle('visible', tab === 'login');
+  document.getElementById('form-reg').classList.toggle('visible',   tab === 'reg');
+  document.getElementById('tab-login').classList.toggle('active',   tab === 'login');
+  document.getElementById('tab-reg').classList.toggle('active',     tab === 'reg');
+  clearMsg();
+}
+
+function showMsg(id, text, isErr) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'auth-msg show ' + (isErr ? 'err' : 'ok');
+}
+
+function clearMsg() {
+  ['login-msg','reg-msg'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'auth-msg';
+    el.textContent = '';
+  });
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = e.target.querySelector('.auth-btn');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showMsg('login-msg', data.error, true);
+    } else {
+      showMsg('login-msg', 'Вхід успішний. Перенаправлення...', false);
+      if (data.current_game) {
+        window.location.href = '/room/' + data.current_game;
+      } else {
+        window.location.href = '/';
+      }
+    }
+  } catch {
+    showMsg('login-msg', 'Помилка з\'єднання', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚙ УВІЙТИ В СХОВИЩЕ';
+  }
+}
+
+async function doRegister(e) {
+  e.preventDefault();
+  const username = document.getElementById('reg-username').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const confirm  = document.getElementById('reg-confirm').value;
+
+  if (password !== confirm) {
+    showMsg('reg-msg', 'Паролі не збігаються', true);
+    return;
+  }
+
+  const btn = e.target.querySelector('.auth-btn');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showMsg('reg-msg', data.error, true);
+    } else {
+      showMsg('reg-msg', 'Акаунт створено! Вхід...', false);
+      setTimeout(() => window.location.href = '/', 800);
+    }
+  } catch {
+    showMsg('reg-msg', 'Помилка з\'єднання', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ ЗАРЕЄСТРУВАТИСЯ';
+  }
+}
+</script>
+
+</body>
+</html>
