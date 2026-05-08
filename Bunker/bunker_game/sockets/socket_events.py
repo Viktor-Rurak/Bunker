@@ -70,8 +70,8 @@ def on_start(data):
         emit('join_error', {'msg': 'Тільки хост може почати гру'})
         return
     player_count = len(rd['players'])
-    if player_count < 2:
-        emit('join_error', {'msg': 'Потрібно мінімум 2 гравці'})
+    if player_count < 6:
+        emit('join_error', {'msg': 'Потрібно мінімум 6 гравців'})
         return
     game = Game()
     game.create_cards(player_count)

@@ -41,7 +41,6 @@ def finish_voting(code):
     kicked_sid  = random.choice(top)
     rd['players'][kicked_sid]['kicked'] = True
     kicked_name = rd['players'][kicked_sid]['name']
-    # Конвертуємо tally: SID → ім'я гравця
     tally_named = {
         rd['players'][s]['name']: v
         for s, v in tally.items()
@@ -64,13 +63,12 @@ def finish_voting(code):
     for p in rd['players'].values():
         p['revealed_this_round'] = []
     new_reveals = get_reveals_for_round(len(active), rd['round'])
-    socketio.emit('new_round', {
-        'round':             rd['round'],
-        'reveals_this_round': new_reveals,
-        'all_players': get_all_players_state(
-            code, next(iter(rd['players']))
-        ),
-    }, to=code)
+    for s in rd['players']:
+        socketio.emit('new_round', {
+            'round':              rd['round'],
+            'reveals_this_round': new_reveals,
+            'all_players':        get_all_players_state(code, s),
+        }, to=s)
 
 
 def end_game(code):
@@ -99,7 +97,6 @@ def end_game(code):
         'bunker_spots':  bunker_spots,
     }, to=code)
 
-    # Очищаємо кімнату з пам'яті через 10 хвилин після завершення
     import threading
     def _cleanup():
         import time
@@ -149,23 +146,17 @@ def build_story_prompt(room_data):
         "Використай характеристики персонажів — їхні професії, хобі, фобії та предмети — "
         "щоб показати чому саме ці люди вижили, а інші ні. "
         "Зроби акцент на атмосфері виживання та долях персонажів.\n\n"
-
         f"КАТАСТРОФА: {cat['name']}\n"
         f"{cat['description']}\n\n"
-
         f"БУНКЕР: {bunk['size']}, запаси: {', '.join(bunk['items'])}, "
         f"розрахований на {bunk['time']}.\n\n"
-
         "ХТО ПОТРАПИВ У БУНКЕР:\n"
         + "\n".join(f"  - {t}" for t in survivor_texts)
         + "\n\n"
-
         "ХТО НЕ ПОТРАПИВ:\n"
         + "\n".join(f"  - {t}" for t in kicked_texts)
         + "\n\n"
-
         f"{result_line}\n\n"
-
         "Напиши лише саму історію, без заголовків і пояснень."
     )
     return prompt

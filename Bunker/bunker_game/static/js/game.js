@@ -116,12 +116,17 @@ socket.on('player_revealed', data => {
   const card = document.querySelector(`.player-card[data-sid="${data.sid}"]`);
   if (!card) return;
 
-  const chars     = card.querySelector('.characteristics');
+  const chars = card.querySelector('.characteristics');
+
+  // prevent duplicate chip
+  if (chars.querySelector(`[data-key="${data.key}"]`)) return;
+
   const hiddenChip = chars.querySelector('.hidden-chip');
   if (hiddenChip) hiddenChip.remove();
 
   const chip = document.createElement('div');
   chip.className = 'char-chip just-revealed';
+  chip.dataset.key = data.key;
   chip.innerHTML = `
     <span class="chip-icon">${data.icon}</span>
     <div>
@@ -289,7 +294,7 @@ function renderAllPlayers(players) {
     const totalChars    = p.total_characteristics || 10;
     const totalHidden   = Math.max(0, totalChars - (p.revealed || []).length);
     const revealedChips = (p.revealed || []).map(c => `
-      <div class="char-chip">
+      <div class="char-chip" data-key="${c.key}">
         <span class="chip-icon">${c.icon}</span>
         <div><div class="chip-label">${c.label}</div><div>${c.value}</div></div>
       </div>`).join('');

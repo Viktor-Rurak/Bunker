@@ -48,6 +48,7 @@ def _reconnect_player(code, old_sid, new_sid, room_data):
     )
     reveals_done = len(p.get('revealed_this_round', []))
 
+    bunker_spots = room_data.get('initial_player_count', len(room_data['players'])) // 2
     socketio.emit('game_started', {
         'game_info': game.to_dict(),
         'my_card': p['card_dict'],
@@ -56,6 +57,7 @@ def _reconnect_player(code, old_sid, new_sid, room_data):
         'all_players': get_all_players_state(code, new_sid),
         'previously_revealed': p['revealed'],
         'reveals_done_this_round': reveals_done,
+        'bunker_spots': bunker_spots,
     }, to=new_sid)
 
     if room_data['state'] == 'voting':
