@@ -54,6 +54,20 @@ def create_room():
     return jsonify({"code": code})
 
 
+@app.route('/rules')
+def rules():
+    user = current_user()
+    username = user['username'] if user else None
+    return render_template('rules.html', username=username)
+
+
+@app.route('/about')
+def about():
+    user = current_user()
+    username = user['username'] if user else None
+    return render_template('about.html', username=username)
+
+
 @app.route('/api/leave_game', methods=['POST'])
 @login_required
 def api_leave_game():

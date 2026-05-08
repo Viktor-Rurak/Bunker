@@ -1001,3 +1001,158 @@ body::after {
   padding: 0.25rem 0; border-bottom: 1px solid var(--border2); color: var(--dust);
 }
 .pr-char:last-of-type { border-bottom: none; }
+
+/* ══════════════════════════════════════════
+   LAYOUT OVERRIDES — ширша ліва панель
+══════════════════════════════════════════ */
+.main {
+  grid-template-columns: 340px 1fr 300px !important;
+}
+
+.catastrophe-name {
+  font-size: 2.4rem !important;
+}
+
+.catastrophe-desc {
+  font-size: 0.78rem !important;
+  color: #8a7a60 !important;
+}
+
+.bunker-item {
+  font-size: 0.82rem !important;
+  padding: 0.45rem 0 !important;
+}
+
+/* ══════════════════════════════════════════
+   MOBILE BOTTOM TABS
+══════════════════════════════════════════ */
+.mobile-tabs {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 52px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  z-index: 150;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.mob-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border2);
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.mob-tab:last-child { border-right: none; }
+.mob-tab .mob-icon  { font-size: 1.1rem; line-height: 1; }
+
+.mob-tab.active {
+  color: var(--pip);
+  background: rgba(77,255,145,0.05);
+}
+
+.mob-tab.active .mob-icon { text-shadow: var(--glow-pip); }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE ≤ 768px
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* show mobile tabs */
+  .mobile-tabs { display: grid; }
+
+  /* full-width single column layout */
+  .main {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding-bottom: 52px;
+  }
+
+  .col {
+    overflow-y: visible !important;
+  }
+
+  /* hide all cols by default, show active */
+  #col-left,
+  #col-right,
+  .main > .col:nth-child(2) {
+    display: none;
+  }
+
+  #col-left.mob-active,
+  #col-right.mob-active,
+  .main > .col:nth-child(2).mob-active {
+    display: block;
+  }
+
+  /* header compact */
+  .header {
+    padding: 0.5rem 1rem;
+  }
+
+  .header-logo { font-size: 1.5rem; }
+
+  .room-code { font-size: 0.55rem; letter-spacing: 0.2em; }
+
+  /* panels full width */
+  .panel { padding: 0.8rem 1rem; }
+
+  /* catastrophe gif full width */
+  .cat-gif-wrap {
+    aspect-ratio: 16/9;
+  }
+
+  .catastrophe-name { font-size: 2rem !important; }
+
+  /* players grid */
+  .players-grid { padding: 0.5rem; gap: 0.6rem; }
+
+  /* voting overlay */
+  .voting-box {
+    max-width: 100% !important;
+    margin: 0.5rem;
+    padding: 1.2rem;
+  }
+
+  /* kick overlay */
+  .kick-big { font-size: 3.5rem; }
+
+  /* gameover */
+  .gameover-box { padding: 1rem; }
+  .gameover-title { font-size: 3.5rem; }
+
+  /* my card full width */
+  .my-card-panel { padding: 0.5rem; }
+
+  /* lobby */
+  .lobby-box {
+    margin: 1rem;
+    padding: 1.4rem;
+  }
+
+  .lobby-title { font-size: 1.8rem; }
+  .lobby-code  { font-size: 2.2rem; letter-spacing: 0.4em; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE ≤ 480px (small phones)
+══════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .catastrophe-name { font-size: 1.7rem !important; }
+  .gameover-title   { font-size: 2.8rem; }
+  .kick-big         { font-size: 2.8rem; }
+  .voting-title     { font-size: 2rem; }
+}

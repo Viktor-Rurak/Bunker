@@ -30,17 +30,12 @@ class Bunker:
         self.time = {"name": time_name, "value": time_choice[time_name]}
 
     def show_bunker(self):
-        print(self.size)
-        print(self.item)
-        print(self.time)
-        print(self.points)
+        pass
 
     def show_bunker_as_player(self):
-        print(self.size["name"])
+        pass
         for i in self.item.keys():
-            print(i)
-        print(self.time["name"])
-        print(self.points)
+            pass
 
 
 class Catastrophe:
@@ -48,12 +43,10 @@ class Catastrophe:
         self.catastrophe = {}
 
     def show_catastrophe(self):
-        print(self.catastrophe)
+        pass
 
     def show_catastrophe_as_player(self):
-        print(self.catastrophe["name"])
-        print("Опис:")
-        print(self.catastrophe["modifiers"]["description"])
+        pass
 
     def get_catastrophe_modifiers(self):
         mods = self.catastrophe.get("modifiers", {}).copy()
@@ -107,26 +100,53 @@ class Card:
         return self.elimination_card
 
     def show_card(self):
-        print(self.age)
-        print(self.gender)
-        print(self.body_constitution)
-        print(self.human_trait)
-        print(self.occupation)
-        print(self.health)
-        print(self.hobby)
-        print(self.phobia)
-        print(self.item)
-        print(self.additional_introduction)
-        print(self.tag_list)
-        print(self.points)
-        print("Карти дій:")
+        pass
         for ac in self.action_cards:
             char = ac.get("characteristic") or ""
             suffix = f" ({char})" if char else ""
-            print(f"  [{ac['name']}{suffix}]")
         if self.elimination_card:
             name = self.elimination_card["name"]
-            print(f"Карта помсти: [{name}]")
+
+    def return_card_text(self):
+        (occ_name, _), = self.occupation.items()
+        (body_name, _), = self.body_constitution.items()
+        (trait_name, _), = self.human_trait.items()
+        (health_name, _), = self.health.items()
+        (hobby_name, _), = self.hobby.items()
+        (phobia_name, _), = self.phobia.items()
+        (item_name, _), = self.item.items()
+        (add_name, _), = self.additional_introduction.items()
+
+        age_str = str(self.age.get('age', '?'))
+        parenthood = ', є діти' if self.age.get('parenthood') else ''
+        gender_str = 'Чоловік' if self.gender == 'male' else 'Жінка'
+
+        return (
+            f"Вік: {age_str} років{parenthood}. "
+            f"Стать: {gender_str}. "
+            f"Тілобудова: {body_name}. "
+            f"Характер: {trait_name}. "
+            f"Професія: {occ_name}. "
+            f"Здоров'я: {health_name}. "
+            f"Хобі: {hobby_name}. "
+            f"Фобія: {phobia_name}. "
+            f"Предмет: {item_name}. "
+            f"Додатково: {add_name}."
+        )
+        return (
+            f"Вік: {age_str} років{parenthood}, "
+            f"Стать: {gender_str}, "
+            f"Тілобудова: {body_name}, "
+            f"Характер: {trait_name}, "
+            f"Професія: {occ_name}, "
+            f"Здоров'я: {health_name}, "
+            f"Хобі: {hobby_name}, "
+            f"Фобія: {phobia_name}, "
+            f"Предмет: {item_name}, "
+            f"Додатково: {add_name}, "
+            f"Бали: {round(self.points, 2)}, "
+            f"Карти дій: {action_str if action_str else 'немає'}"
+        )
 
     def choice_age(self):
         age_ = random.randint(16, 85)
@@ -238,10 +258,9 @@ class Card:
 
         mult = body_pts * trait_pts * phobia_pts * health_pts * add_pts
         self.points = mult * (hobby_pts + occ_pts + item_pts)
-        print(self.points)
 
     def __del__(self):
-        print("Card was deleted")
+        pass
 
 
 def tag_calculation(base, tags, c_tags):

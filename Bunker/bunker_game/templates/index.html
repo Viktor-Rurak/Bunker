@@ -5,30 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VAULT-TEC // БУНКЕР</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-  <style>
-    .user-bar {
-      position: fixed; top: 0; right: 0;
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 20px;
-      font-size: 0.7rem; letter-spacing: 1px; color: var(--muted);
-      z-index: 50;
-    }
-    .user-bar span { color: var(--pip); }
-    .user-bar button {
-      background: none; border: 1px solid var(--border);
-      color: var(--muted); font-family: 'Share Tech Mono', monospace;
-      font-size: 0.65rem; letter-spacing: 1px; padding: 4px 10px;
-      cursor: pointer; transition: color .2s, border-color .2s;
-    }
-    .user-bar button:hover { color: var(--rust); border-color: var(--rust); }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
 </head>
-<body>
+<body class="has-header">
 
-<div class="user-bar">
-  // мешканець: <span>{{ username }}</span>
-  <button onclick="doLogout()">ВИЙТИ З АКАУНТУ</button>
-</div>
+<!-- HEADER -->
+<header class="site-header">
+  <a href="/" class="header-logo">
+    <span class="logo-badge">☢</span>
+    <div>
+      <div class="logo-corp">VAULT-TEC CORPORATION</div>
+      <div class="logo-name">БУНКЕР</div>
+    </div>
+  </a>
+  <nav class="header-nav">
+    <a href="/" class="nav-link active">🏠 ГОЛОВНА</a>
+    <a href="/rules" class="nav-link">📖 ПРАВИЛА</a>
+    <a href="/about" class="nav-link">ℹ ПРО ГРУ</a>
+    <div class="nav-sep"></div>
+    <span class="nav-user">// мешканець: <span>{{ username }}</span></span>
+    <button class="nav-logout" onclick="doLogout()">ВИЙТИ</button>
+  </nav>
+</header>
 
 <div class="container">
 
@@ -58,6 +56,7 @@
   </div>
 
 </div>
+
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 <script>
 async function doLogout() {

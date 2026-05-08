@@ -31,8 +31,8 @@ def auth_page():
 @app.route('/api/register', methods=['POST'])
 def api_register():
     data = request.json or {}
-    username = data.get('username', '').strip()
-    password = data.get('password', '').strip()
+    username = data.get('username', '').strip()[:32]
+    password = data.get('password', '').strip()[:64]
     if not username or not password:
         return jsonify({'error': "Введіть нікнейм і пароль"}), 400
     if len(username) < 2:
@@ -50,8 +50,10 @@ def api_register():
 @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.json or {}
-    username = data.get('username', '').strip()
-    password = data.get('password', '').strip()
+    username = data.get('username', '').strip()[:32]
+    password = data.get('password', '').strip()[:64]
+    if not username or not password:
+        return jsonify({'error': "Введіть нікнейм і пароль"}), 400
     user = login_user(username, password)
     if not user:
         return jsonify({'error': "Невірний нікнейм або пароль"}), 401

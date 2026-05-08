@@ -14,14 +14,10 @@ def on_join(data):
     uid      = session.get('user_id')
     username = session.get('username')
 
-    print(f'[JOIN] code={code!r} uid={uid!r} username={username!r} sid={request.sid}')
-
     if not uid:
-        print(f'[JOIN] ERROR: no uid in session')
         emit('join_error', {'msg': 'Не авторизовано. Оновіть сторінку та увійдіть знову.'})
         return
     if code not in rooms:
-        print(f'[JOIN] ERROR: room {code!r} not found. Rooms: {list(rooms.keys())}')
         emit('join_error', {'msg': 'Кімнату не знайдено'})
         return
 
@@ -40,7 +36,6 @@ def on_join(data):
         return
 
     sid = request.sid
-    # Видаляємо старий ghost-запис цього юзера
     old = next((s for s, p in rd['players'].items()
                 if p.get('user_id') == uid), None)
     if old and old != sid:
@@ -59,7 +54,6 @@ def on_join(data):
         'is_host':  is_host,
     }
     join_room(code)
-    print(f'[JOIN] emitting joined to sid={sid}, is_host={is_host}')
     emit('joined', {'sid': sid, 'is_host': is_host,
                     'code': code, 'name': username})
     emit('lobby_update', get_lobby_state(code), to=code)
@@ -81,10 +75,12 @@ def on_start(data):
         return
     game = Game()
     game.create_cards(player_count)
-    rd['game']  = game
-    rd['state'] = 'playing'
-    rd['round'] = 0
+    rd['game']                 = game
+    rd['state']                = 'playing'
+    rd['round']                = 0
+    rd['initial_player_count'] = player_count
     sids = list(rd['players'].keys())
+    rd['player_sids'] = sids[:]
     for i, s in enumerate(sids):
         card = game.cards[i]
         rd['players'][s]['card_dict'] = card_to_dict(card, s)
@@ -94,14 +90,16 @@ def on_start(data):
         ]
         rd['players'][s]['elimination_card'] = None
         rd['players'][s]['alliances']        = []
-    game_info = game.to_dict()
+    game_info    = game.to_dict()
+    bunker_spots = player_count // 2
     for s in sids:
         socketio.emit('game_started', {
-            'game_info':         game_info,
-            'my_card':           rd['players'][s]['card_dict'],
-            'round':             0,
+            'game_info':          game_info,
+            'my_card':            rd['players'][s]['card_dict'],
+            'round':              0,
             'reveals_this_round': get_reveals_for_round(player_count, 0),
-            'all_players':       get_all_players_state(code, s),
+            'all_players':        get_all_players_state(code, s),
+            'bunker_spots':       bunker_spots,
         }, to=s)
 
 
@@ -116,7 +114,7 @@ def on_reveal(data):
     player = rd['players'].get(sid)
     if not player or player['kicked']:
         return
-    active_count  = len([p for p in rd['players'].values() if not p['kicked']])
+    active_count    = len([p for p in rd['players'].values() if not p['kicked']])
     reveals_allowed = get_reveals_for_round(active_count, rd['round'])
     revealed_round  = player.get('revealed_this_round', [])
     if key in player['revealed']:
@@ -154,6 +152,10 @@ def on_vote(data):
         return
     rd['votes'][voter_sid] = target_sid
     active = [s for s, p in rd['players'].items() if not p['kicked']]
+    socketio.emit('vote_update', {
+        'votes_cast':   len(rd['votes']),
+        'votes_needed': len(active),
+    }, to=code)
     if len(rd['votes']) >= len(active):
         finish_voting(code)
 

@@ -6,6 +6,10 @@ from helpers import get_reveals_for_round, get_all_players_state
 def _reconnect_player(code, old_sid, new_sid, room_data):
     p = room_data['players'].pop(old_sid)
     room_data['players'][new_sid] = p
+    # Оновлюємо player_sids щоб action_handlers мав правильний mapping
+    if 'player_sids' in room_data and old_sid in room_data['player_sids']:
+        idx = room_data['player_sids'].index(old_sid)
+        room_data['player_sids'][idx] = new_sid
 
     if room_data['host'] == old_sid:
         room_data['host'] = new_sid
@@ -78,6 +82,3 @@ def _reconnect_player(code, old_sid, new_sid, room_data):
         to=code
     )
 
-
-if __name__ == '__main__':
-    socketio.run(app, debug=True)

@@ -1,5 +1,5 @@
 import sqlite3
-import hashlib
+import bcrypt
 import uuid
 import os
 
@@ -22,11 +22,14 @@ def init_db():
 
 
 def _hash(password: str) -> str:
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+
+def _verify(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 
 def register_user(username: str, password: str):
-    """Створює нового користувача. Повертає user dict або None якщо нік зайнятий."""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     try:
@@ -44,7 +47,6 @@ def register_user(username: str, password: str):
 
 
 def login_user(username: str, password: str):
-    """Перевіряє пароль. Повертає user dict або None."""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute(
@@ -56,7 +58,7 @@ def login_user(username: str, password: str):
     conn.close()
     if not row:
         return None
-    if row[2] != _hash(password):
+    if not _verify(password, row[2]):
         return None
     return {
         'id': row[0],
@@ -66,7 +68,6 @@ def login_user(username: str, password: str):
 
 
 def get_user(user_id: str):
-    """Повертає user dict по id або None."""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute(
@@ -81,7 +82,6 @@ def get_user(user_id: str):
 
 
 def set_user_game(user_id: str, game_code):
-    """Прив'язує або відв'язує акаунт від гри (game_code=None для виходу)."""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute(

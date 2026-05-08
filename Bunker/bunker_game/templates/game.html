@@ -20,6 +20,7 @@
       ☢ ЗАПУСТИТИ ПРОТОКОЛ ☢
     </button>
     <div class="lobby-waiting" id="lobby-status">ВСТАНОВЛЕННЯ З'ЄДНАННЯ...</div>
+    <button class="lobby-cancel-btn" onclick="leaveGame()">✕ СКАСУВАТИ</button>
   </div>
 </div>
 
@@ -70,6 +71,19 @@
   <div class="round-badge" id="round-badge">ЛОБІ</div>
 </div>
 
+<!-- ── MOBILE TABS ── -->
+<div class="mobile-tabs" id="mobile-tabs">
+  <button class="mob-tab" id="tab-info"    onclick="mobSwitch('left')" >
+    <span class="mob-icon">☢</span>ЗАГРОЗА
+  </button>
+  <button class="mob-tab mob-active" id="tab-players" onclick="mobSwitch('center')">
+    <span class="mob-icon">👥</span>ГРАВЦІ
+  </button>
+  <button class="mob-tab" id="tab-card"   onclick="mobSwitch('right')">
+    <span class="mob-icon">🪪</span>МОЄ ДОСЬЄ
+  </button>
+</div>
+
 <!-- ── MAIN LAYOUT ── -->
 <div class="main">
 
@@ -77,6 +91,10 @@
   <div class="col" id="col-left">
     <div class="panel" id="catastrophe-panel" style="display:none">
       <div class="panel-title">Загроза</div>
+      <div class="cat-gif-wrap" id="cat-gif-wrap">
+        <img id="cat-gif" src="" alt="" />
+        <div class="cat-gif-scanlines"></div>
+      </div>
       <div class="catastrophe-name" id="cat-name"></div>
       <div class="catastrophe-desc" id="cat-desc"></div>
     </div>
@@ -142,6 +160,32 @@
   </div>
 </div>
 
+<script>
+// ── MOBILE TAB SWITCHING ──
+function mobSwitch(panel) {
+  const left   = document.getElementById('col-left');
+  const center = document.querySelector('.main > .col:nth-child(2)');
+  const right  = document.getElementById('col-right');
+  const tabs   = { left, center, right };
+
+  Object.values(tabs).forEach(c => c && c.classList.remove('mob-active'));
+  if (tabs[panel]) tabs[panel].classList.add('mob-active');
+
+  document.getElementById('tab-info').classList.toggle('active',    panel === 'left');
+  document.getElementById('tab-players').classList.toggle('active', panel === 'center');
+  document.getElementById('tab-card').classList.toggle('active',    panel === 'right');
+}
+
+// on game start — switch to players tab on mobile
+function mobActivatePlayers() {
+  if (window.innerWidth <= 768) mobSwitch('center');
+}
+
+// default: show center col on mobile
+if (window.innerWidth <= 768) {
+  document.addEventListener('DOMContentLoaded', () => mobSwitch('center'));
+}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <script>
   const ROOM_CODE = '{{ room_code }}';
@@ -150,15 +194,67 @@
 <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 
 <style>
-  .leave-btn {
-    position: fixed; bottom: 18px; left: 18px; z-index: 200;
-    background: none; border: 1px solid #3d1000;
-    color: #5a2200; font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem; letter-spacing: 2px; padding: 6px 12px;
-    cursor: pointer; transition: color .2s, border-color .2s;
+  /* ── CATASTROPHE GIF ── */
+  .cat-gif-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    margin-bottom: 0.8rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #000;
   }
-  .leave-btn:hover { color: #ff6b6b; border-color: #ff6b6b; }
+  .cat-gif-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.7) brightness(0.85) contrast(1.1);
+  }
+  /* scanlines overlay on top of gif */
+  .cat-gif-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.22) 3px,
+      rgba(0,0,0,0.22) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* vignette on gif */
+  .cat-gif-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.65) 100%);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .lobby-cancel-btn {
+    width: auto;
+    margin-top: 0.6rem;
+    background: none;
+    border: 1px solid #3d1000;
+    color: #5a2200;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 6px 20px;
+    cursor: pointer;
+    clip-path: none;
+    transition: color .2s, border-color .2s;
+  }
+  .lobby-cancel-btn:hover {
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+    background: rgba(139,37,0,0.08);
+    transform: none;
+    box-shadow: none;
+  }
 </style>
-<button class="leave-btn" onclick="leaveGame()">✕ ВИЙТИ З ГРИ</button>
 </body>
 </html>

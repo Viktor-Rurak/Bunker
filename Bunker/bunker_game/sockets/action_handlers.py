@@ -5,7 +5,7 @@ from config import socketio, rooms
 from data.action_data import deal_elimination_card, get_action_cards
 
 def _give_elimination_card(code, kicked_sid, room_data):
-    sids = list(room_data['players'].keys())
+    sids = room_data.get('player_sids', list(room_data['players'].keys()))
     if kicked_sid not in sids:
         return
     idx = sids.index(kicked_sid)
@@ -58,7 +58,7 @@ def on_use_action_card(data):
 
     ac = _find_action_card(player, name, is_elim)
     if not ac:
-        emit('error', {'msg': 'Карту не знайдено або вже використано'})
+        emit('join_error', {'msg': 'Карту не знайдено або вже використано'})
         return
 
     # Перевірка Імунітету (тільки для карт з ціллю)
@@ -185,7 +185,7 @@ def _fx_anonymous(user_sid, target_sid, room_data):
 
 # ── Ворожий бункер ──
 def _fx_enemy_bunker(code, user_sid, room_data):
-    sids = list(room_data['players'].keys())
+    sids = room_data.get('player_sids', list(room_data['players'].keys()))
     if user_sid not in sids:
         return {'type': 'error'}
     game = room_data['game']
@@ -212,7 +212,7 @@ def _fx_curse(code, target_sid, room_data):
     target = room_data['players'].get(target_sid)
     if not target or target['kicked']:
         return {'type': 'error'}
-    sids = list(room_data['players'].keys())
+    sids = room_data.get('player_sids', list(room_data['players'].keys()))
     if target_sid not in sids:
         return {'type': 'error'}
     game = room_data['game']
@@ -284,7 +284,7 @@ def _fx_symbiosis(code, user_sid, target_sid, room_data):
         return {'type': 'error'}
     user.setdefault('alliances', []).append(target_sid)
     target.setdefault('alliances', []).append(user_sid)
-    sids = list(room_data['players'].keys())
+    sids = room_data.get('player_sids', list(room_data['players'].keys()))
     game = room_data['game']
     for sid in (user_sid, target_sid):
         if sid in sids:

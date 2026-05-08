@@ -317,3 +317,18 @@ button {
 
 .error-msg::before { content: '! ERROR: '; }
 .error-msg.show { display: block; }
+
+/* ── SCROLLABLE PAGES (rules, about) ── */
+body.has-header {
+  overflow-y: auto;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+body.has-header .container {
+  margin: 2rem auto;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}

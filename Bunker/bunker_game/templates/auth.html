@@ -5,8 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VAULT-TEC // АВТОРИЗАЦІЯ</title>
   <link rel="stylesheet" href="/static/css/auth.css">
+  <link rel="stylesheet" href="/static/css/header.css">
+  <style>
+    /* on auth page override centering to account for header */
+    body { padding-top: 56px; }
+  </style>
 </head>
 <body>
+
+<!-- HEADER (without profile since user is not logged in) -->
+<header class="site-header">
+  <a href="/auth" class="header-logo">
+    <span class="logo-badge">☢</span>
+    <div>
+      <div class="logo-corp">VAULT-TEC CORPORATION</div>
+      <div class="logo-name">БУНКЕР</div>
+    </div>
+  </a>
+  <nav class="header-nav">
+    <a href="/rules" class="nav-link">📖 ПРАВИЛА</a>
+    <a href="/about" class="nav-link">ℹ ПРО ГРУ</a>
+  </nav>
+</header>
 
 <div class="auth-card">
   <div class="auth-logo">
@@ -87,7 +107,6 @@ async function doLogin(e) {
   const btn = e.target.querySelector('.auth-btn');
   btn.disabled = true;
   btn.textContent = '...';
-
   try {
     const res = await fetch('/api/login', {
       method: 'POST',
@@ -118,16 +137,13 @@ async function doRegister(e) {
   const username = document.getElementById('reg-username').value.trim();
   const password = document.getElementById('reg-password').value;
   const confirm  = document.getElementById('reg-confirm').value;
-
   if (password !== confirm) {
     showMsg('reg-msg', 'Паролі не збігаються', true);
     return;
   }
-
   const btn = e.target.querySelector('.auth-btn');
   btn.disabled = true;
   btn.textContent = '...';
-
   try {
     const res = await fetch('/api/register', {
       method: 'POST',
@@ -149,6 +165,5 @@ async function doRegister(e) {
   }
 }
 </script>
-
 </body>
 </html>

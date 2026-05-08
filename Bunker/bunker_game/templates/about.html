@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAULT-TEC // ПРО ГРУ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="stylesheet" href="/static/css/header.css">
+</head>
+<body class="has-header">
+
+<header class="site-header">
+  <a href="/" class="header-logo">
+    <span class="logo-badge">☢</span>
+    <div>
+      <div class="logo-corp">VAULT-TEC CORPORATION</div>
+      <div class="logo-name">БУНКЕР</div>
+    </div>
+  </a>
+  <nav class="header-nav">
+    <a href="/" class="nav-link">🏠 ГОЛОВНА</a>
+    <a href="/rules" class="nav-link">📖 ПРАВИЛА</a>
+    <a href="/about" class="nav-link active">ℹ ПРО ГРУ</a>
+    {% if username %}
+    <div class="nav-sep"></div>
+    <span class="nav-user">// мешканець: <span>{{ username }}</span></span>
+    <button class="nav-logout" onclick="doLogout()">ВИЙТИ</button>
+    {% endif %}
+  </nav>
+</header>
+
+<div class="rules-container">
+
+  <div class="rules-title">ℹ ПРО ГРУ</div>
+  <div class="rules-subtitle">// VAULT-TEC CORPORATION — ТЕРМІНАЛ ІНФОРМАЦІЇ //</div>
+
+  <div class="rules-section">
+    <div class="rules-section-title">🎮 ЩО ЦЕ ТАКЕ?</div>
+    <p>«Бункер» — це онлайн рольова гра на виживання для компанії від 6 до 15 осіб. 
+    Гра натхненна настільними іграми жанру «соціальна дедукція» та постапокаліптичною 
+    естетикою серії Fallout.</p>
+    <br>
+    <p>Кожна партія — це унікальна ситуація: випадкова катастрофа, випадковий бункер, 
+    випадкові персонажі. Жодна гра не повторюється.</p>
+  </div>
+
+  <div class="rules-section">
+    <div class="rules-section-title">⚙ ТЕХНІЧНА ЧАСТИНА</div>
+    <ul>
+      <li>Гра працює в реальному часі через WebSocket з'єднання</li>
+      <li>Всі гравці з'єднані в одній кімнаті — дії миттєво видно всім</li>
+      <li>Фінальна історія генерується за допомогою Google Gemini AI</li>
+      <li>Для гри потрібен тільки браузер — нічого встановлювати</li>
+    </ul>
+  </div>
+
+  <div class="rules-section">
+    <div class="rules-section-title">🗺 ЯК ПОЧАТИ?</div>
+    <ul>
+      <li>Зареєструйся або увійди в акаунт</li>
+      <li>Один гравець створює кімнату та ділиться кодом з іншими</li>
+      <li>Решта приєднуються за кодом</li>
+      <li>Хост запускає гру коли всі зібрались</li>
+      <li>Грайте, обговорюйте, голосуйте — і виживайте!</li>
+    </ul>
+  </div>
+
+  <div class="rules-section">
+    <div class="rules-section-title">📡 ВЕРСІЯ</div>
+    <p style="color:var(--muted); font-size:0.72rem;">
+      VAULT-TEC БУНКЕР // ТЕРМІНАЛ v2.3.1<br>
+      Статус: <span style="color:var(--pip)">АКТИВНИЙ</span><br>
+      Протокол виживання: <span style="color:var(--amber)">ІНІЦІАЛІЗОВАНО</span>
+    </p>
+  </div>
+
+</div>
+
+<script>
+async function doLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/auth';
+}
+</script>
+</body>
+</html>

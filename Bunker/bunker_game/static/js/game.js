@@ -11,6 +11,7 @@ let revealsThisRound = 0;
 let currentRound    = 0;
 let hasVoted        = false;
 let gameStarted     = false;
+let bunkerSpots     = 0;
 
 // ── CONNECT ──
 socket.on('connect', () => {
@@ -87,6 +88,7 @@ socket.on('game_started', data => {
   currentRound     = data.round;
   revealsAllowed   = data.reveals_this_round;
   revealsThisRound = 0;
+  bunkerSpots      = data.bunker_spots || 0;
 
   document.getElementById('lobby-screen').style.display = 'none';
   document.getElementById('my-card-panel').style.display = 'block';
@@ -99,6 +101,7 @@ socket.on('game_started', data => {
   myActionCards = data.my_card.action_cards || [];
   renderActionCards();
   addLog('Гра почалась!', 'highlight');
+  if (typeof mobActivatePlayers === 'function') mobSwitch('left');
   addLog(`Катастрофа: ${data.game_info.catastrophe.name}`, 'danger');
   addLog(`Раунд 1 — відкрийте ${revealsAllowed} характеристик`, 'highlight');
 });
@@ -196,7 +199,7 @@ socket.on('game_over', data => {
     .join('');
 
   summary.innerHTML =
-    `Бали команди: <span>${data.total_points}</span> / Поріг бункера: <span>${data.bunker_points}</span>`;
+    `Бали команди: <span>${data.total_points}</span> / Поріг виживання: <span>${data.threshold}</span>`;
 
   // Запрошуємо генерацію історії
   generateStory(data);
@@ -247,13 +250,30 @@ function generateStory(gameData) {
 }
 
 // ── RENDER ──
+const CAT_GIFS = {
+  'Зомбі-апокаліпсис':    'zombie.gif',
+  'Ядерна війна':          'nuclear.gif',
+  'Пандемія вірусу':       'pandemic.gif',
+  'Нападіння диявола':     'demons.gif',
+  'Повстання машин':       'robots.gif',
+  'Нападіння інопланетян': 'aliens.gif',
+};
+
 function showGameInfo(info) {
   document.getElementById('catastrophe-panel').style.display = 'block';
   document.getElementById('bunker-panel').style.display = 'block';
   document.getElementById('cat-name').textContent  = info.catastrophe.name;
   document.getElementById('cat-desc').textContent  = info.catastrophe.description;
 
+  // GIF
+  const gifFile = CAT_GIFS[info.catastrophe.name] || 'default.gif';
+  const gifEl   = document.getElementById('cat-gif');
+  gifEl.src     = '/static/images/catastrophes/' + gifFile;
+  gifEl.alt     = info.catastrophe.name;
+  gifEl.onerror = () => { document.getElementById('cat-gif-wrap').style.display = 'none'; };
+
   document.getElementById('bunker-info').innerHTML = `
+    <div class="bunker-item"><div class="dot"></div>🧍 Місць у бункері: ${bunkerSpots}</div>
     <div class="bunker-item"><div class="dot"></div>${info.bunker.size}</div>
     ${info.bunker.items.map(i => `<div class="bunker-item"><div class="dot"></div>${i}</div>`).join('')}
     <div class="bunker-item"><div class="dot"></div>${info.bunker.time}</div>

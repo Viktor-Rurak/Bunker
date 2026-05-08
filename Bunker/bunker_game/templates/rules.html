@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAULT-TEC // ПРАВИЛА</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="stylesheet" href="/static/css/header.css">
+</head>
+<body class="has-header">
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="/" class="header-logo">
+    <span class="logo-badge">☢</span>
+    <div>
+      <div class="logo-corp">VAULT-TEC CORPORATION</div>
+      <div class="logo-name">БУНКЕР</div>
+    </div>
+  </a>
+  <nav class="header-nav">
+    <a href="/" class="nav-link">🏠 ГОЛОВНА</a>
+    <a href="/rules" class="nav-link active">📖 ПРАВИЛА</a>
+    <a href="/about" class="nav-link">ℹ ПРО ГРУ</a>
+    {% if username %}
+    <div class="nav-sep"></div>
+    <span class="nav-user">// мешканець: <span>{{ username }}</span></span>
+    <button class="nav-logout" onclick="doLogout()">ВИЙТИ</button>
+    {% endif %}
+  </nav>
+</header>
+
+<div class="rules-container">
+
+  <div class="rules-title">📖 ПРАВИЛА</div>
+  <div class="rules-subtitle">// ПРОТОКОЛ ВИЖИВАННЯ — ІНСТРУКЦІЯ ДЛЯ МЕШКАНЦІВ //</div>
+
+  <!-- СУТЬ ГРИ -->
+  <div class="rules-section">
+    <div class="rules-section-title">⚡ СУТЬ ГРИ</div>
+    <p>Сталася глобальна катастрофа. Є бункер — але місць менше, ніж людей. Гравці обговорюють, 
+    розкривають характеристики своїх персонажів і шляхом голосування вирішують, хто залишиться зовні. 
+    Мета — зібрати команду, яка зможе вижити в бункері.</p>
+  </div>
+
+  <!-- УЧАСНИКИ -->
+  <div class="rules-section">
+    <div class="rules-section-title">👥 УЧАСНИКИ</div>
+    <ul>
+      <li>Від <strong>6 до 15 гравців</strong></li>
+      <li>Один із гравців — <strong>хост</strong>, він запускає гру</li>
+      <li>Кількість місць у бункері: приблизно <strong>половина від кількості гравців</strong></li>
+    </ul>
+    <br>
+    <div>
+      <span class="rules-tag">6–7 гравців → 3 місця</span>
+      <span class="rules-tag">8–9 гравців → 4 місця</span>
+      <span class="rules-tag">10–11 гравців → 5 місць</span>
+      <span class="rules-tag">12–13 гравців → 6 місць</span>
+      <span class="rules-tag">14–15 гравців → 7 місць</span>
+    </div>
+  </div>
+
+  <!-- ХІД ГРИ -->
+  <div class="rules-section">
+    <div class="rules-section-title">🔄 ХІД ГРИ</div>
+
+    <div class="rules-step">
+      <span class="rules-num">1</span>
+      <div class="rules-step-text">
+        <strong>Отримання карток.</strong> Кожен гравець отримує секретну картку персонажа 
+        з характеристиками: вік, стать, професія, здоров'я, хобі, фобія, предмет та інше.
+      </div>
+    </div>
+    <div class="rules-step">
+      <span class="rules-num">2</span>
+      <div class="rules-step-text">
+        <strong>Розкриття характеристик.</strong> Кожен раунд гравці відкривають певну кількість 
+        своїх характеристик. Всі бачать що відкрито — це основа для обговорення.
+      </div>
+    </div>
+    <div class="rules-step">
+      <span class="rules-num">3</span>
+      <div class="rules-step-text">
+        <strong>Обговорення.</strong> Гравці переконують інших, чому саме вони потрібні в бункері. 
+        Можна хвалити себе, критикувати інших, будувати коаліції.
+      </div>
+    </div>
+    <div class="rules-step">
+      <span class="rules-num">4</span>
+      <div class="rules-step-text">
+        <strong>Голосування.</strong> Після обговорення всі голосують — хто отримав найбільше голосів, 
+        покидає гру. При рівності голосів вибір випадковий.
+      </div>
+    </div>
+    <div class="rules-step">
+      <span class="rules-num">5</span>
+      <div class="rules-step-text">
+        <strong>Кінець.</strong> Гра триває поки не залишиться потрібна кількість гравців. 
+        Вони й потрапляють у бункер.
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТКИ ДІЇ -->
+  <div class="rules-section">
+    <div class="rules-section-title">🃏 КАРТКИ ДІЇ</div>
+    <p>Кожен гравець починає з декількома картками дії — це спеціальні здібності, 
+    які можна використати в потрібний момент:</p>
+    <br>
+    <ul>
+      <li><strong>Обмін характеристикою</strong> — поміняй одну свою характеристику з іншим гравцем</li>
+      <li><strong>Блок голосу</strong> — заблокуй голос одного гравця в цьому раунді</li>
+      <li><strong>Перегляд картки</strong> — подивись приховану характеристику іншого гравця</li>
+      <li><strong>Захист від вигнання</strong> — якщо тебе вигнали цим раундом, залишайся</li>
+    </ul>
+    <br>
+    <p style="color: var(--muted); font-size: 0.7rem;">// Картки дії — одноразові. Використані картки зникають.</p>
+  </div>
+
+  <!-- СИСТЕМА БАЛІВ -->
+  <div class="rules-section">
+    <div class="rules-section-title">⚖ СИСТЕМА ВИЖИВАННЯ</div>
+    <p>Після відбору команди гра підраховує, чи вистачає ресурсів для виживання:</p>
+    <br>
+    <ul>
+      <li><strong>Бали гравців</strong> — сума очок характеристик тих, хто в бункері</li>
+      <li><strong>Бали бункера</strong> — визначаються оснащенням і запасами сховища</li>
+      <li><strong>Поріг виживання</strong> — загальна кількість гравців × 65</li>
+    </ul>
+    <br>
+    <p>Якщо <strong style="color:var(--pip)">бали команди + бали бункера ≥ порогу</strong> — виживання успішне. 
+    Якщо ні — навіть ті, хто потрапив у бункер, не вижили.</p>
+  </div>
+
+  <!-- НАПРИКІНЦІ -->
+  <div class="rules-section">
+    <div class="rules-section-title">✍ ФІНАЛЬНА ІСТОРІЯ</div>
+    <p>Після завершення гри штучний інтелект генерує коротку художню історію про долю команди — 
+    з урахуванням катастрофи, бункера, характеристик гравців і результату виживання. 
+    Кожна партія — унікальна розповідь.</p>
+  </div>
+
+</div>
+
+<script>
+async function doLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/auth';
+}
+
+// highlight active nav
+(function(){
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === path);
+  });
+})();
+</script>
+</body>
+</html>

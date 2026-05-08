@@ -99,3 +99,4 @@ class Game:
         for i in self.cards:
             print()
             i.show_card()
+
