@@ -9,7 +9,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback-dev-key-change
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-socketio = SocketIO(app, cors_allowed_origins=os.environ.get('ALLOWED_ORIGINS', '*'), async_mode='gevent')
+_origins_env = os.environ.get('ALLOWED_ORIGINS', '*')
+_origins = [o.strip() for o in _origins_env.split(',')] if _origins_env != '*' else '*'
+socketio = SocketIO(app, cors_allowed_origins=_origins, async_mode='gevent')
 
 # Глобальний стан: всі активні кімнати
 rooms = {}
