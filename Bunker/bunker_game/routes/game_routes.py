@@ -9,6 +9,9 @@ from helpers import generate_room_code
 @login_required
 def index():
     user = current_user()
+    if user is None:
+        session.clear()
+        return redirect(url_for('auth_page'))
     code = user.get('current_game_code')
     if code and code in rooms:
         return redirect(url_for('room', code=code))
