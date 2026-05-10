@@ -258,3 +258,34 @@ body.has-header {
   line-height: 1.7;
   color: var(--dust);
 }
+
+/* ── MOBILE ── */
+@media (max-width: 480px) {
+  .site-header {
+    padding: 0 0.8rem;
+  }
+
+  .header-logo .logo-badge {
+    font-size: 1.2rem;
+  }
+
+  .header-logo .logo-corp {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+  }
+
+  .header-logo .logo-name {
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .nav-link {
+    font-size: 0.6rem;
+    padding: 6px 7px;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-user {
+    display: none;
+  }
+}

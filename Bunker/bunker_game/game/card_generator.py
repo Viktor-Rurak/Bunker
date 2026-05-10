@@ -133,20 +133,7 @@ class Card:
             f"Предмет: {item_name}. "
             f"Додатково: {add_name}."
         )
-        return (
-            f"Вік: {age_str} років{parenthood}, "
-            f"Стать: {gender_str}, "
-            f"Тілобудова: {body_name}, "
-            f"Характер: {trait_name}, "
-            f"Професія: {occ_name}, "
-            f"Здоров'я: {health_name}, "
-            f"Хобі: {hobby_name}, "
-            f"Фобія: {phobia_name}, "
-            f"Предмет: {item_name}, "
-            f"Додатково: {add_name}, "
-            f"Бали: {round(self.points, 2)}, "
-            f"Карти дій: {action_str if action_str else 'немає'}"
-        )
+
 
     def choice_age(self):
         age_ = random.randint(16, 85)
