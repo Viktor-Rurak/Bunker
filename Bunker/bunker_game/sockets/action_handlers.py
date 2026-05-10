@@ -263,6 +263,9 @@ def _fx_swap(code, user_sid, target_sid, ac, room_data):
     if not uc or not tc:
         return {'type': 'error'}
     uc['value'], tc['value'] = tc['value'], uc['value']
+    # Оновити картку у обох гравців
+    socketio.emit('my_card_updated', {'card': user['card_dict']},   to=user_sid)
+    socketio.emit('my_card_updated', {'card': target['card_dict']}, to=target_sid)
     return {'type': 'swap',
             'char_key': char_key,
             'char_label': uc['label'],
@@ -331,6 +334,8 @@ def _fx_evolution(code, user_sid, char_key, room_data):
     if not char:
         return {'type': 'error'}
     char['value'] = new_val
+    # Оновити картку гравця
+    socketio.emit('my_card_updated', {'card': player['card_dict']}, to=user_sid)
     return {'type': 'evolution',
             'char_label': char['label'],
             'new_value': new_val}

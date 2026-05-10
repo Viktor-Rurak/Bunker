@@ -514,6 +514,11 @@ socket.on('action_card_result', data => {
   logActionResult(data);
 });
 
+socket.on('my_card_updated', data => {
+  myCard = data.card;
+  renderMyCard();
+});
+
 socket.on('action_card_private', data => {
   if (data.type === 'anonymous_report') {
     document.getElementById('pr-title').textContent =
