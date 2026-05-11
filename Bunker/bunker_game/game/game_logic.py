@@ -9,10 +9,14 @@ def check_round_complete(code):
     if rd['state'] != 'playing':
         return
     active = [p for p in rd['players'].values() if not p['kicked']]
+    # Не чекаємо відключених гравців — вони не можуть розкривати
+    connected_active = [p for p in active if not p.get('disconnected')]
+    if not connected_active:
+        return
     reveals_needed = get_reveals_for_round(len(active), rd['round'])
     all_done = all(
         len(p.get('revealed_this_round', [])) >= reveals_needed
-        for p in active
+        for p in connected_active
     )
     if not all_done:
         return

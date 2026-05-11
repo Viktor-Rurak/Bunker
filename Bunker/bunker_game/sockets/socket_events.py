@@ -114,6 +114,8 @@ def on_reveal(data):
     player = rd['players'].get(sid)
     if not player or player['kicked']:
         return
+    if rd['state'] != 'playing':
+        return
     active_count    = len([p for p in rd['players'].values() if not p['kicked']])
     reveals_allowed = get_reveals_for_round(active_count, rd['round'])
     revealed_round  = player.get('revealed_this_round', [])
@@ -151,7 +153,8 @@ def on_vote(data):
     if voter_sid not in rd['players'] or rd['players'][voter_sid]['kicked']:
         return
     rd['votes'][voter_sid] = target_sid
-    active = [s for s, p in rd['players'].items() if not p['kicked']]
+    active = [s for s, p in rd['players'].items()
+              if not p['kicked'] and not p.get('disconnected')]
     socketio.emit('vote_update', {
         'votes_cast':   len(rd['votes']),
         'votes_needed': len(active),

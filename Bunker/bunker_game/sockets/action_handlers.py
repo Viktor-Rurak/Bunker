@@ -56,6 +56,11 @@ def on_use_action_card(data):
     if not player:
         return
 
+    # Кікнутий може використовувати лише карту помсти
+    if player.get('kicked') and not is_elim:
+        emit('join_error', {'msg': 'Вас виключено. Доступна лише карта помсти.'})
+        return
+
     ac = _find_action_card(player, name, is_elim)
     if not ac:
         emit('join_error', {'msg': 'Карту не знайдено або вже використано'})

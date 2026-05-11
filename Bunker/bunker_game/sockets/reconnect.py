@@ -80,7 +80,7 @@ def _reconnect_player(code, old_sid, new_sid, room_data):
 
     socketio.emit(
         'player_reconnected',
-        {'sid': new_sid, 'name': p['name']},
+        {'sid': new_sid, 'old_sid': old_sid, 'name': p['name']},
         to=code
     )
 

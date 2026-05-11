@@ -12,6 +12,7 @@ let currentRound    = 0;
 let hasVoted        = false;
 let gameStarted     = false;
 let bunkerSpots     = 0;
+let amIKicked       = false;
 
 // ── CONNECT ──
 socket.on('connect', () => {
@@ -78,16 +79,26 @@ socket.on('player_left', data => addLog(`${data.name} покинув кімна�
 
 socket.on('player_reconnected', data => {
   addLog(`${data.name} перепідключився`, 'highlight');
+  // Оновлюємо SID картки гравця в DOM (щоб player_revealed знаходив картку)
+  if (data.old_sid) {
+    const oldCard = document.querySelector(`.player-card[data-sid="${data.old_sid}"]`);
+    if (oldCard) oldCard.dataset.sid = data.sid;
+    // Оновлюємо SID в currentAllPlayers (для таргетингу action cards)
+    const p = currentAllPlayers.find(pl => pl.sid === data.old_sid);
+    if (p) p.sid = data.sid;
+  }
 });
 
 // ── GAME START ──
 socket.on('game_started', data => {
-  
+
   gameStarted      = true;
   myCard           = data.my_card;
   currentRound     = data.round;
   revealsAllowed   = data.reveals_this_round;
-  revealsThisRound = 0;
+  // При реконекті сервер надсилає previously_revealed та reveals_done_this_round
+  revealedByMe     = data.previously_revealed || [];
+  revealsThisRound = data.reveals_done_this_round || 0;
   bunkerSpots      = data.bunker_spots || 0;
 
   document.getElementById('lobby-screen').style.display = 'none';
@@ -167,6 +178,11 @@ socket.on('player_kicked', data => {
 
   const card = document.querySelector(`.player-card[data-sid="${data.sid}"]`);
   if (card) card.classList.add('kicked');
+
+  if (data.sid === mySid) {
+    amIKicked = true;
+    renderActionCards();
+  }
 });
 
 // ── NEXT ROUND ──
@@ -390,8 +406,10 @@ function renderActionCards() {
     const usedClass = ac.used ? 'used' : 'available';
     const btn = ac.used
       ? '<div class="ac-desc" style="text-align:center;letter-spacing:.1em">ВИКОРИСТАНО</div>'
-      : `<button class="ac-use-btn" onclick="openActionModal(${i},false)">[ ВИКОРИСТАТИ ]</button>`;
-    return `<div class="action-card-item ${usedClass}">
+      : amIKicked
+        ? '<div class="ac-desc" style="text-align:center;letter-spacing:.1em;color:var(--rust)">НЕДОСТУПНО</div>'
+        : `<button class="ac-use-btn" onclick="openActionModal(${i},false)">[ ВИКОРИСТАТИ ]</button>`;
+    return `<div class="action-card-item ${amIKicked && !ac.used ? 'used' : usedClass}">
       <div class="ac-header"><span class="ac-name">${ac.name}</span>${badge}</div>
       <div class="ac-desc">${desc}</div>${btn}</div>`;
   }).join('');
