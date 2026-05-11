@@ -92,6 +92,15 @@ def end_game(code):
     rd['survived']   = survived
 
     bunker_spots = rd.get('initial_player_count', len(rd['players'])) // 2
+
+    # Генеруємо story від Gemini до відправки game_over
+    story = ''
+    try:
+        prompt = build_story_prompt(rd)
+        story  = call_gemini(prompt)
+    except Exception:
+        story = ''
+
     socketio.emit('game_over', {
         'survivors':     survivors,
         'total_points':  total_pts,
@@ -99,6 +108,7 @@ def end_game(code):
         'threshold':     threshold,
         'survived':      survived,
         'bunker_spots':  bunker_spots,
+        'story':         story,
     }, to=code)
 
     import threading

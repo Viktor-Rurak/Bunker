@@ -66,6 +66,17 @@ document.addEventListener('keydown', e => {
   summary.textContent =
     `Бали команди: ${data.total_points} / Поріг виживання: ${data.threshold}`;
 
+  // Виводимо історію від Gemini
+  const storyEl = document.getElementById('go-story');
+  if (storyEl) {
+    if (data.story) {
+      storyEl.textContent = data.story;
+      storyEl.style.display = 'block';
+    } else {
+      storyEl.style.display = 'none';
+    }
+  }
+
   popup.style.display = 'flex';
 })();
 
