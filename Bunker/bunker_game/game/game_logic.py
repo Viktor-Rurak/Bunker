@@ -194,9 +194,13 @@ def call_gemini(prompt):
         headers={"Content-Type": "application/json"},
         method="POST"
     )
+    print("\n── GEMINI PROMPT ──────────────────────────")
+    print(prompt)
+    print("───────────────────────────────────────────\n")
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
             return data['candidates'][0]['content']['parts'][0]['text']
     except Exception as e:
+        print(f"[GEMINI ERROR] {e}")
         return f"[ Помилка генерації: {e} ]"
