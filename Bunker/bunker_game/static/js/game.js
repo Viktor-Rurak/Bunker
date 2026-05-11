@@ -198,7 +198,11 @@ socket.on('new_round', data => {
 
 // ── GAME OVER ──
 socket.on('game_over', data => {
-  // Зберігаємо результати і редіректимо на головну
+  console.log('── GEMINI PROMPT ───────────────────────────');
+  console.log(data.prompt || '(промпт відсутній)');
+  console.log('── GEMINI STORY ────────────────────────────');
+  console.log(data.story || '(історія відсутня або помилка)');
+  console.log('────────────────────────────────────────────');
   sessionStorage.setItem('gameResult', JSON.stringify(data));
   window.location.href = '/';
 });

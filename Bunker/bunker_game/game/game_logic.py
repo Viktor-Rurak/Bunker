@@ -105,9 +105,10 @@ def end_game(code):
 
     # Генеруємо story від Gemini до відправки game_over
     story = ''
+    prompt_text = ''
     try:
-        prompt = build_story_prompt(rd)
-        story  = call_gemini(prompt)
+        prompt_text = build_story_prompt(rd)
+        story = call_gemini(prompt_text)
     except Exception:
         story = ''
 
@@ -116,6 +117,7 @@ def end_game(code):
         'total_points':  total_pts,
         'bunker_points': bunker_pts,
         'threshold':     threshold,
+        'prompt':        prompt_text,
         'survived':      survived,
         'bunker_spots':  bunker_spots,
         'story':         story,
@@ -204,13 +206,17 @@ def call_gemini(prompt):
         headers={"Content-Type": "application/json"},
         method="POST"
     )
-    gemini_log.info("── PROMPT ──────────────────────────────────\n%s", prompt)
+    print("── GEMINI PROMPT ───────────────────────────", flush=True)
+    print(prompt, flush=True)
+    print("────────────────────────────────────────────", flush=True)
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
             story = data['candidates'][0]['content']['parts'][0]['text']
-            gemini_log.info("── RESPONSE ────────────────────────────────\n%s", story)
+            print("── GEMINI RESPONSE ─────────────────────────", flush=True)
+            print(story, flush=True)
+            print("────────────────────────────────────────────", flush=True)
             return story
     except Exception as e:
-        gemini_log.error("── ERROR ────────────────────────────────────\n%s", e)
+        print(f"── GEMINI ERROR ────────────────────────────\n{e}", flush=True)
         return f"[ Помилка генерації: {e} ]"
