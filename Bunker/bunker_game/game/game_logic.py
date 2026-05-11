@@ -1,6 +1,16 @@
-import random, json, os
+import random, json, os, logging
 import urllib.request
 from config import rooms, socketio
+
+# ── ЛОГУВАННЯ ──────────────────────────────────────────────────────────
+_log_path = os.path.join(os.path.dirname(__file__), '..', 'gemini.log')
+logging.basicConfig(
+    filename=os.path.abspath(_log_path),
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s\n%(message)s\n',
+    encoding='utf-8',
+)
+gemini_log = logging.getLogger('gemini')
 from helpers import get_reveals_for_round, get_all_players_state
 
 
@@ -194,13 +204,13 @@ def call_gemini(prompt):
         headers={"Content-Type": "application/json"},
         method="POST"
     )
-    print("\n── GEMINI PROMPT ──────────────────────────")
-    print(prompt)
-    print("───────────────────────────────────────────\n")
+    gemini_log.info("── PROMPT ──────────────────────────────────\n%s", prompt)
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
-            return data['candidates'][0]['content']['parts'][0]['text']
+            story = data['candidates'][0]['content']['parts'][0]['text']
+            gemini_log.info("── RESPONSE ────────────────────────────────\n%s", story)
+            return story
     except Exception as e:
-        print(f"[GEMINI ERROR] {e}")
+        gemini_log.error("── ERROR ────────────────────────────────────\n%s", e)
         return f"[ Помилка генерації: {e} ]"
