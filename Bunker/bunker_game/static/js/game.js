@@ -198,41 +198,13 @@ socket.on('new_round', data => {
 
 // ── GAME OVER ──
 socket.on('game_over', data => {
-  const overlay = document.getElementById('gameover-overlay');
-  const title   = document.getElementById('gameover-title');
-  const sub     = document.getElementById('gameover-sub');
-  const list    = document.getElementById('survivor-list');
-  const summary = document.getElementById('points-summary');
-
-  overlay.classList.add('show');
-  title.textContent  = data.survived ? 'ВИЖИЛИ!' : 'ЗАГИНУЛИ';
-  title.className    = 'gameover-title ' + (data.survived ? 'survived' : 'dead');
-  sub.textContent    = data.survived
-    ? 'Команда набрала достатньо балів для виживання'
-    : 'Команда не змогла вижити в бункері';
-
-  list.innerHTML = data.survivors
-    .map((s, i) => `
-      <div class="survivor-item">
-        <span class="s-name">${i + 1}. ${s.name}</span>
-        <span class="s-pts">${s.points} балів</span>
-      </div>`)
-    .join('');
-
-  summary.innerHTML =
-    `Бали команди: <span>${data.total_points}</span> / Поріг виживання: <span>${data.threshold}</span>`;
-
-  // Запрошуємо генерацію історії
-  generateStory(data);
+  // Зберігаємо результати і редіректимо на головну
+  sessionStorage.setItem('gameResult', JSON.stringify(data));
+  window.location.href = '/';
 });
 
-// ── STORY ──
-socket.on('story_ready', data => {
-  const block = document.getElementById('story-block');
-  document.getElementById('story-loading').style.display = 'none';
-  document.getElementById('story-text').textContent = data.story;
-  block.style.display = 'block';
-});
+// ── STORY (більше не використовується на сторінці гри) ──
+socket.on('story_ready', () => {});
 
 // ── ACTIONS ──
 function startGame() {

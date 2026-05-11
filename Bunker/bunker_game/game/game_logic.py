@@ -104,7 +104,7 @@ def end_game(code):
     import threading
     def _cleanup():
         import time
-        time.sleep(600)
+        time.sleep(10)   # даємо час доставити game_over всім клієнтам
         rooms.pop(code, None)
     threading.Thread(target=_cleanup, daemon=True).start()
 

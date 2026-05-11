@@ -57,6 +57,20 @@
 
 </div>
 
+<!-- ── GAME OVER POPUP ── -->
+<div id="gameover-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center">
+  <div style="background:#0a0a0a;border:1px solid var(--border, #1a2a1a);padding:2.5rem 2rem;max-width:480px;width:90%;font-family:'Share Tech Mono',monospace;text-align:center">
+    <div id="go-title" style="font-size:2rem;letter-spacing:.2em;margin-bottom:.5rem"></div>
+    <div id="go-sub"   style="font-size:.7rem;color:#6b8c6b;letter-spacing:.1em;margin-bottom:1.5rem"></div>
+    <div id="go-list"  style="margin-bottom:1.2rem"></div>
+    <div id="go-summary" style="font-size:.65rem;color:#4a6b4a;margin-bottom:1.8rem"></div>
+    <button onclick="closeGameoverPopup()"
+      style="background:none;border:1px solid #2a4a2a;color:#4caf50;font-family:inherit;font-size:.7rem;letter-spacing:.15em;padding:8px 28px;cursor:pointer">
+      [ ЗАКРИТИ ]
+    </button>
+  </div>
+</div>
+
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 <script>
 async function doLogout() {
