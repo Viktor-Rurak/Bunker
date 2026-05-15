@@ -32,11 +32,10 @@ def _find_action_card(player, card_name, is_elim):
 
 def _check_immunity(room_data, target_sid):
     target = room_data['players'].get(target_sid, {})
-    for ac in target.get('action_cards', []):
-        if ac['name'] == 'Імунітет' and not ac.get('used'):
-            ac['used'] = True
-            socketio.emit('immunity_triggered', {}, to=target_sid)
-            return True
+    if target.get('has_immunity'):
+        target['has_immunity'] = False
+        socketio.emit('immunity_triggered', {}, to=target_sid)
+        return True
     return False
 
 
@@ -116,6 +115,8 @@ def _apply_effect(code, user_sid, ac, target_sid, char_key, room_data):
         return _fx_symbiosis(code, user_sid, target_sid, room_data)
     if name == 'Еволюція':
         return _fx_evolution(code, user_sid, char_key, room_data)
+    if name == 'Імунітет':
+        return _fx_immunity(user_sid, room_data)
     if name == 'Крадіжка':
         return _fx_theft(code, user_sid, target_sid, char_key, room_data)
     if name == 'Переоцінка':
@@ -298,8 +299,6 @@ def _fx_symbiosis(code, user_sid, target_sid, room_data):
     target = room_data['players'].get(target_sid)
     if not target:
         return {'type': 'error'}
-    user.setdefault('alliances', []).append(target_sid)
-    target.setdefault('alliances', []).append(user_sid)
     sids = room_data.get('player_sids', list(room_data['players'].keys()))
     game = room_data['game']
     for sid in (user_sid, target_sid):
@@ -374,6 +373,12 @@ def _fx_evolution(code, user_sid, char_key, room_data):
     return {'type': 'evolution',
             'char_label': char['label'],
             'new_value': new_val}
+
+
+# ── Імунітет ──
+def _fx_immunity(user_sid, room_data):
+    room_data['players'][user_sid]['has_immunity'] = True
+    return {'type': 'immunity_active'}
 
 
 # ── Крадіжка ──

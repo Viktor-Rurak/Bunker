@@ -593,6 +593,9 @@ function logActionResult(data) {
   } else if (e.type === 'already_revealed') {
     msg += ': у ' + e.target_name + ' всі характеристики вже відкриті';
     addLog(msg, 'highlight');
+  } else if (e.type === 'immunity_active') {
+    msg += ' — захист активовано, наступна здібність проти тебе буде заблокована';
+    addLog(msg, 'highlight');
   } else {
     addLog(msg, 'highlight');
   }

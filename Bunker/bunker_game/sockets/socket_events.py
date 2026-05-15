@@ -89,7 +89,6 @@ def on_start(data):
             dict(ac) for ac in rd['players'][s]['card_dict']['action_cards']
         ]
         rd['players'][s]['elimination_card'] = None
-        rd['players'][s]['alliances']        = []
     game_info    = game.to_dict()
     bunker_spots = player_count // 2
     for s in sids:
