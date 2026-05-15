@@ -10,7 +10,7 @@ test_setup.py — автоматичне налаштування тестово
 
 Вимоги:
   pip install requests
-  Додай DEV_SECRET=test-secret в Railway Variables (або .env локально)
+  Додай DEV_SECRET=test-secret в Railway Variables (або .env локально).
 
 Запуск:
   python test_setup.py --url https://your-app.railway.app --dev-secret test-secret
