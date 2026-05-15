@@ -1,13 +1,19 @@
-import sqlite3
+import psycopg2
+import psycopg2.errors
 import bcrypt
 import uuid
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'bunker.db')
+
+def _get_conn():
+    url = os.environ.get('DATABASE_URL', '')
+    if not url:
+        raise RuntimeError('DATABASE_URL environment variable is not set')
+    return psycopg2.connect(url)
 
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = _get_conn()
     c = conn.cursor()
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -30,28 +36,29 @@ def _verify(password: str, hashed: str) -> bool:
 
 
 def register_user(username: str, password: str):
-    conn = sqlite3.connect(DB_PATH)
+    conn = _get_conn()
     c = conn.cursor()
     try:
         user_id = str(uuid.uuid4())
         c.execute(
-            'INSERT INTO users (id, username, password_hash) VALUES (?, ?, ?)',
+            'INSERT INTO users (id, username, password_hash) VALUES (%s, %s, %s)',
             (user_id, username, _hash(password))
         )
         conn.commit()
         return {'id': user_id, 'username': username, 'current_game_code': None}
-    except sqlite3.IntegrityError:
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
         return None
     finally:
         conn.close()
 
 
 def login_user(username: str, password: str):
-    conn = sqlite3.connect(DB_PATH)
+    conn = _get_conn()
     c = conn.cursor()
     c.execute(
         'SELECT id, username, password_hash, current_game_code '
-        'FROM users WHERE username = ?',
+        'FROM users WHERE username = %s',
         (username,)
     )
     row = c.fetchone()
@@ -68,10 +75,10 @@ def login_user(username: str, password: str):
 
 
 def get_user(user_id: str):
-    conn = sqlite3.connect(DB_PATH)
+    conn = _get_conn()
     c = conn.cursor()
     c.execute(
-        'SELECT id, username, current_game_code FROM users WHERE id = ?',
+        'SELECT id, username, current_game_code FROM users WHERE id = %s',
         (user_id,)
     )
     row = c.fetchone()
@@ -82,10 +89,10 @@ def get_user(user_id: str):
 
 
 def set_user_game(user_id: str, game_code):
-    conn = sqlite3.connect(DB_PATH)
+    conn = _get_conn()
     c = conn.cursor()
     c.execute(
-        'UPDATE users SET current_game_code = ? WHERE id = ?',
+        'UPDATE users SET current_game_code = %s WHERE id = %s',
         (game_code, user_id)
     )
     conn.commit()

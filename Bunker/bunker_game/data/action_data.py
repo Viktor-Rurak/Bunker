@@ -266,11 +266,17 @@ def deal_action_cards(num_cards=2):
     regular_cards = {k: v for k, v in action_cards.items() if not v["for_eliminated"]}
     regular_weights = [weights[k] for k in regular_cards]
 
-    chosen_names = random.choices(
-        population=list(regular_cards.keys()),
-        weights=regular_weights,
-        k=num_cards
-    )
+    # Weighted sampling WITHOUT replacement — гравець не може отримати 2 однакові карти
+    population = list(regular_cards.keys())
+    chosen_names = []
+    remaining_weights = list(regular_weights)
+    remaining_population = list(population)
+    for _ in range(min(num_cards, len(remaining_population))):
+        chosen = random.choices(remaining_population, weights=remaining_weights, k=1)[0]
+        chosen_names.append(chosen)
+        idx = remaining_population.index(chosen)
+        remaining_population.pop(idx)
+        remaining_weights.pop(idx)
 
     dealt = []
     for name in chosen_names:
