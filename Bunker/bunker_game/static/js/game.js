@@ -544,28 +544,40 @@ function logActionResult(data) {
     msg += ': ' + e.target_name + ' [' + e.char_label + '] = ' + e.char_value;
     addLog(msg, 'highlight');
   } else if (e.type === 'betrayal') {
-    msg += ': розкрито ' + e.revealed_count + ' карт ' + e.target_name;
+    msg += ': розкрито всі карти ' + e.target_name + ' (' + e.revealed_count + ' шт.)';
     addLog(msg, 'danger');
   } else if (e.type === 'curse') {
-    msg += ': ' + e.target_name + ' → ' + e.new_points + ' балів';
+    msg += ': ' + e.target_name + ' → ' + e.new_points + ' балів (−15%)';
     addLog(msg, 'danger');
   } else if (e.type === 'enemy_bunker') {
-    msg = '☢ ' + user + ' атакує! Штраф −' + e.penalty + ' балів кожному';
+    msg = '☢ ' + user + ' атакує з ворожого бункера! Штраф −' + e.penalty + ' балів кожному';
     addLog(msg, 'danger');
   } else if (e.type === 'swap') {
-    msg += ': [' + e.char_label + '] з ' + e.target_name;
+    msg += ': [' + e.char_label + '] поміняно з ' + e.target_name;
     addLog(msg, 'highlight');
-  } else if (e.type === 'masquerade') {
-    msg += ': обмін профессіями з ' + e.target_name;
+  } else if (e.type === 'symbiosis') {
+    msg += ': союз з ' + e.target_name + ' (+10% балів обом)';
     addLog(msg, 'highlight');
-  } else if (e.type === 'alliance') {
-    msg += ': союз з ' + e.target_name;
+  } else if (e.type === 'evolution') {
+    msg += ': [' + e.char_label + '] змінено на «' + e.new_value + '»';
     addLog(msg, 'highlight');
-  } else if (e.type === 'points_transfer') {
-    msg += ': +' + e.amount + ' балів від ' + e.target_name;
+  } else if (e.type === 'theft') {
+    msg += ': викрав [' + e.char_label + ': ' + e.stolen_value + '] у ' + e.target_name;
+    addLog(msg, 'danger');
+  } else if (e.type === 'revaluation') {
+    msg += ': [' + e.char_label + '] перегенеровано у всіх гравців';
     addLog(msg, 'highlight');
-  } else if (e.type === 'immunity') {
-    msg += ': імунітет активовано';
+  } else if (e.type === 'apocalypse') {
+    msg += ': додано тег [' + e.tag + '] — штраф −' + e.penalty_pct + '% балів усім';
+    addLog(msg, 'danger');
+  } else if (e.type === 'lottery') {
+    msg += ': [' + e.char_label + '] перемішано між усіма гравцями';
+    addLog(msg, 'highlight');
+  } else if (e.type === 'anonymous_report') {
+    msg += ': таємно переглянуто картку ' + e.target_name;
+    addLog(msg, 'highlight');
+  } else if (e.type === 'already_revealed') {
+    msg += ': у ' + e.target_name + ' всі характеристики вже відкриті';
     addLog(msg, 'highlight');
   } else {
     addLog(msg, 'highlight');

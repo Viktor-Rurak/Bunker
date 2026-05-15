@@ -116,6 +116,14 @@ def _apply_effect(code, user_sid, ac, target_sid, char_key, room_data):
         return _fx_symbiosis(code, user_sid, target_sid, room_data)
     if name == 'Еволюція':
         return _fx_evolution(code, user_sid, char_key, room_data)
+    if name == 'Крадіжка':
+        return _fx_theft(code, user_sid, target_sid, char_key, room_data)
+    if name == 'Переоцінка':
+        return _fx_revaluation(code, room_data)
+    if name == 'Апокаліпсис':
+        return _fx_apocalypse(code, room_data)
+    if name == 'Лотерея долі':
+        return _fx_lottery(code, room_data)
     return {'type': name.lower().replace(' ', '_')}
 
 
@@ -307,6 +315,28 @@ def _fx_symbiosis(code, user_sid, target_sid, room_data):
             'target_name': target['name']}
 
 
+# ── Генератор рандомного значення характеристики ──
+def _gen_random_for_key(char_key):
+    from data.card_data import (
+        get_body_constitution, get_occupation_choice, get_traits,
+        get_choice_disease, get_hobbies_choice, get_choice_phobia,
+        get_item_choice, get_additional_info,
+    )
+    import random as _r
+    pool_map = {
+        'body':       lambda: _r.choice(list(get_body_constitution().keys())),
+        'occupation': lambda: _r.choice(list(get_occupation_choice().keys())),
+        'trait':      lambda: _r.choice(list(get_traits().keys())),
+        'health':     lambda: _r.choice(list(get_choice_disease().keys())),
+        'hobby':      lambda: _r.choice(list(get_hobbies_choice().keys())),
+        'phobia':     lambda: _r.choice(list(get_choice_phobia().keys())),
+        'item':       lambda: _r.choice(list(get_item_choice().keys())),
+        'additional': lambda: _r.choice(list(get_additional_info().keys())),
+    }
+    gen = pool_map.get(char_key)
+    return gen() if gen else '?'
+
+
 # ── Еволюція ──
 def _fx_evolution(code, user_sid, char_key, room_data):
     if not char_key:
@@ -345,4 +375,89 @@ def _fx_evolution(code, user_sid, char_key, room_data):
             'char_label': char['label'],
             'new_value': new_val}
 
+
+# ── Крадіжка ──
+def _fx_theft(code, user_sid, target_sid, char_key, room_data):
+    if not char_key or not target_sid:
+        return {'type': 'error'}
+    user   = room_data['players'].get(user_sid)
+    target = room_data['players'].get(target_sid)
+    if not user or not target:
+        return {'type': 'error'}
+    uc = next((c for c in user['card_dict']['characteristics']   if c['key'] == char_key), None)
+    tc = next((c for c in target['card_dict']['characteristics'] if c['key'] == char_key), None)
+    if not uc or not tc:
+        return {'type': 'error'}
+    stolen_value = tc['value']
+    uc['value']  = stolen_value
+    new_val      = _gen_random_for_key(char_key)
+    tc['value']  = new_val
+    socketio.emit('my_card_updated', {'card': user['card_dict']},   to=user_sid)
+    socketio.emit('my_card_updated', {'card': target['card_dict']}, to=target_sid)
+    return {
+        'type':          'theft',
+        'target_name':   target['name'],
+        'char_label':    tc['label'],
+        'stolen_value':  stolen_value,
+    }
+
+
+# ── Переоцінка ──
+def _fx_revaluation(code, room_data):
+    generable = ['body', 'occupation', 'trait', 'health', 'hobby', 'phobia', 'item', 'additional']
+    char_key  = random.choice(generable)
+    char_label = char_key
+    active = [(s, p) for s, p in room_data['players'].items() if not p['kicked']]
+    for sid, player in active:
+        char = next((c for c in player['card_dict']['characteristics'] if c['key'] == char_key), None)
+        if char:
+            char_label   = char['label']
+            char['value'] = _gen_random_for_key(char_key)
+            socketio.emit('my_card_updated', {'card': player['card_dict']}, to=sid)
+    return {'type': 'revaluation', 'char_label': char_label}
+
+
+# ── Апокаліпсис ──
+_APOCALYPSE_TAGS = [
+    'Ядерна зима', 'Кислотні дощі', 'Зомбі-вірус', 'Магнітна буря',
+    'Паразити-мутанти', 'Радіоактивне зараження', 'Токсичний туман',
+    'Електромагнітний імпульс', 'Голод', 'Пандемія',
+]
+
+def _fx_apocalypse(code, room_data):
+    tag         = random.choice(_APOCALYPSE_TAGS)
+    penalty_pct = 10
+    sids = room_data.get('player_sids', list(room_data['players'].keys()))
+    game = room_data['game']
+    active = [(s, p) for s, p in room_data['players'].items() if not p['kicked']]
+    for s, p in active:
+        if s in sids:
+            idx = sids.index(s)
+            if idx < len(game.cards):
+                game.cards[idx].points       *= (1 - penalty_pct / 100)
+                p['card_dict']['points']      = round(game.cards[idx].points, 2)
+    return {'type': 'apocalypse', 'tag': tag, 'penalty_pct': penalty_pct}
+
+
+# ── Лотерея долі ──
+def _fx_lottery(code, room_data):
+    generable = ['body', 'occupation', 'trait', 'health', 'hobby', 'phobia', 'item', 'additional']
+    char_key   = random.choice(generable)
+    active     = [(s, p) for s, p in room_data['players'].items() if not p['kicked']]
+    if len(active) < 2:
+        return {'type': 'error'}
+    chars_by_sid = {}
+    char_label   = char_key
+    for sid, player in active:
+        char = next((c for c in player['card_dict']['characteristics'] if c['key'] == char_key), None)
+        if char:
+            chars_by_sid[sid] = char
+            char_label        = char['label']
+    sids_list = list(chars_by_sid.keys())
+    values    = [chars_by_sid[s]['value'] for s in sids_list]
+    random.shuffle(values)
+    for sid, val in zip(sids_list, values):
+        chars_by_sid[sid]['value'] = val
+        socketio.emit('my_card_updated', {'card': room_data['players'][sid]['card_dict']}, to=sid)
+    return {'type': 'lottery', 'char_label': char_label}
 
