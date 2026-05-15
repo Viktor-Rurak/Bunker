@@ -438,6 +438,20 @@ function buildModalContent(ac, idx, isElim) {
   }
 
   if (ac.target === 'self') {
+    // Еволюція потребує вибору власної характеристики
+    if (ac.name === 'Еволюція') {
+      const generable = ['body','occupation','trait','health','hobby','phobia','item','additional'];
+      const myChars = (myCard && myCard.characteristics || [])
+        .filter(c => generable.includes(c.key));
+      el.innerHTML = `<div class="am-label">ОБЕРІТЬ СВОЮ ХАРАКТЕРИСТИКУ:</div>` +
+        myChars.map(c =>
+          `<button class="am-char-btn"
+            onclick="sendUseCard('${ac.name}',null,'${c.key}',${isElim})">
+            ${c.icon || ''} ${c.label}: <span style="color:var(--muted)">${c.value}</span>
+          </button>`
+        ).join('');
+      return;
+    }
     el.innerHTML = `<button class="am-target-btn"
       onclick="sendUseCard('${ac.name}',null,null,${isElim})">[ ПІДТВЕРДИТИ ]</button>`;
     return;
@@ -571,7 +585,7 @@ function logActionResult(data) {
     msg += ': додано тег [' + e.tag + '] — штраф −' + e.penalty_pct + '% балів усім';
     addLog(msg, 'danger');
   } else if (e.type === 'lottery') {
-    msg += ': [' + e.char_label + '] перемішано між усіма гравцями';
+    msg += ' [' + e.char_label + ']';
     addLog(msg, 'highlight');
   } else if (e.type === 'anonymous_report') {
     msg += ': таємно переглянуто картку ' + e.target_name;
