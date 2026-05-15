@@ -1,19 +1,27 @@
 """
-test_setup.py — швидке налаштування тестової гри
+test_setup.py — автоматичне налаштування тестової гри
 
 Що робить:
-  1. Реєструє акаунти test1..test6 (якщо вже є — просто логіниться)
+  1. Реєструє/логінить test1..test6
   2. test1 створює кімнату
-  3. Виводить код кімнати і дані для входу
+  3. Отримує одноразові токени для кожного гравця
+  4. Відкриває 6 незалежних Chrome вікон — кожне вже залогінене і в кімнаті
+  5. Тобі залишається лише натиснути «Старт» у вікні test1
+
+Вимоги:
+  pip install requests
+  Додай DEV_SECRET=test-secret в Railway Variables (або .env локально)
 
 Запуск:
-  python test_setup.py
-  python test_setup.py --url http://localhost:5000
-  python test_setup.py --url https://your-app.railway.app
+  python test_setup.py --url https://your-app.railway.app --dev-secret test-secret
 """
 
 import sys
+import os
+import time
 import argparse
+import subprocess
+import tempfile
 import requests
 
 # ── Налаштування ──────────────────────────────────────────────────────────────
@@ -23,30 +31,56 @@ TEST_USERS = [
     for i in range(1, 7)
 ]
 
+# ── Пошук Chrome ─────────────────────────────────────────────────────────────
 
-# ── Функції ───────────────────────────────────────────────────────────────────
+def find_chrome():
+    candidates = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        r"C:\Users\{}\AppData\Local\Google\Chrome\Application\chrome.exe".format(
+            os.environ.get("USERNAME", "")
+        ),
+        "/usr/bin/google-chrome",
+        "/usr/bin/chromium-browser",
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    # Пробуємо через PATH
+    import shutil
+    return shutil.which("chrome") or shutil.which("google-chrome") or shutil.which("chromium")
 
-def login_or_register(base_url: str, username: str, password: str) -> requests.Session:
+
+def open_chrome_window(chrome_path, url, profile_dir):
+    """Відкриває Chrome з окремим профілем — незалежна сесія."""
+    subprocess.Popen([
+        chrome_path,
+        f"--user-data-dir={profile_dir}",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--new-window",
+        url,
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+# ── HTTP функції ──────────────────────────────────────────────────────────────
+
+def login_or_register(base_url, username, password):
     s = requests.Session()
-
-    # Спочатку пробуємо залогінитись
     r = s.post(f"{base_url}/api/login", json={"username": username, "password": password})
     if r.status_code == 200 and r.json().get("ok"):
         print(f"  ✓ {username} — увійшов")
         return s
-
-    # Якщо акаунту немає — реєструємо
     r = s.post(f"{base_url}/api/register", json={"username": username, "password": password})
     if r.status_code == 200 and r.json().get("ok"):
         print(f"  ✓ {username} — зареєстровано і увійшов")
         return s
-
-    # Щось пішло не так
     print(f"  ✗ {username} — помилка: {r.text}")
     sys.exit(1)
 
 
-def create_room(base_url: str, session: requests.Session) -> str:
+def create_room(base_url, session):
     r = session.post(f"{base_url}/api/create_room", json={})
     if r.status_code == 200:
         code = r.json()["code"]
@@ -56,47 +90,74 @@ def create_room(base_url: str, session: requests.Session) -> str:
     sys.exit(1)
 
 
+def get_autologin_url(base_url, dev_secret, username, password):
+    r = requests.post(
+        f"{base_url}/api/dev/token",
+        json={"username": username, "password": password},
+        headers={"X-Dev-Secret": dev_secret},
+    )
+    if r.status_code == 200:
+        token = r.json()["token"]
+        return f"{base_url}/dev/login/{token}"
+    print(f"  ✗ Не вдалося отримати токен для {username}: {r.text}")
+    sys.exit(1)
+
+
 # ── Головна логіка ────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--url", default="http://localhost:5000",
-                        help="URL сервера (default: http://localhost:5000)")
+    parser.add_argument("--url", default="http://localhost:5000")
+    parser.add_argument("--dev-secret", default="test-secret",
+                        help="DEV_SECRET з Railway Variables")
     args = parser.parse_args()
     base = args.url.rstrip("/")
 
     print(f"\n{'='*55}")
-    print(f"  БУНКЕР — тестове налаштування")
+    print(f"  БУНКЕР — автозапуск тестової гри")
     print(f"  Сервер: {base}")
     print(f"{'='*55}\n")
 
-    # 1. Логін / реєстрація всіх акаунтів
-    print("[ 1/2 ] Акаунти:")
-    sessions = []
+    # 1. Акаунти
+    print("[ 1/4 ] Акаунти:")
     for u in TEST_USERS:
-        s = login_or_register(base, u["username"], u["password"])
-        sessions.append(s)
+        login_or_register(base, u["username"], u["password"])
 
-    # 2. test1 створює кімнату
-    print("\n[ 2/2 ] Створення кімнати (test1):")
-    code = create_room(base, sessions[0])
+    # 2. Кімната
+    print("\n[ 2/4 ] Кімната (test1):")
+    host_session = requests.Session()
+    r = host_session.post(f"{base}/api/login",
+                          json={"username": "test1", "password": "test1234"})
+    code = create_room(base, host_session)
 
-    # 3. Виводимо інструкції
+    # 3. Токени
+    print("\n[ 3/4 ] Токени автологіну:")
+    urls = []
+    for u in TEST_USERS:
+        url = get_autologin_url(base, args.dev_secret, u["username"], u["password"])
+        print(f"  ✓ {u['username']}")
+        urls.append(url)
+
+    # 4. Відкриваємо Chrome вікна
+    print("\n[ 4/4 ] Відкриваємо Chrome:")
+    chrome = find_chrome()
+    if not chrome:
+        print("  ✗ Chrome не знайдено! Відкрий вручну:")
+        for u, url in zip(TEST_USERS, urls):
+            print(f"    {u['username']}: {url}")
+        sys.exit(1)
+
+    tmp_base = tempfile.gettempdir()
+    for i, (u, url) in enumerate(zip(TEST_USERS, urls)):
+        profile_dir = os.path.join(tmp_base, f"bunker_test_profile_{i+1}")
+        open_chrome_window(chrome, url, profile_dir)
+        print(f"  ✓ {u['username']} — вікно відкрито")
+        time.sleep(0.5)   # невелика пауза щоб вікна не злились
+
     print(f"\n{'='*55}")
-    print(f"  КОД КІМНАТИ:  {code}")
-    print(f"{'='*55}")
-    print(f"\n  Відкрий 6 вікон/вкладок у браузері та увійди:")
-    print()
-    for u in TEST_USERS:
-        tag = " ← вже в кімнаті (хост)" if u["username"] == "test1" else ""
-        print(f"    {u['username']:8s}  пароль: {u['password']}{tag}")
-    print()
-    print(f"  URL входу:  {base}/auth")
-    print(f"  URL кімнати: {base}/room/{code}")
-    print()
-    print("  Порада: відкривай кожне вікно в окремому профілі або")
-    print("  використовуй режим інкогніто щоб сесії не перетиналися.")
-    print(f"\n{'='*55}\n")
+    print(f"  Готово! Код кімнати: {code}")
+    print(f"  У вікні test1 натисни «Старт» щоб почати гру.")
+    print(f"{'='*55}\n")
 
 
 if __name__ == "__main__":

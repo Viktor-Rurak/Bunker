@@ -14,6 +14,7 @@ init_db()
 
 import auth_routes      # noqa: F401
 import game_routes      # noqa: F401
+import dev_routes       # noqa: F401
 import socket_events    # noqa: F401
 import action_handlers  # noqa: F401
 
