@@ -58,9 +58,13 @@ def register_user(username: str, password: str):
         )
         conn.commit()
         return {'id': user_id, 'username': username, 'current_game_code': None}
-    except pg8000.dbapi.IntegrityError:
+    except Exception as e:
         conn.rollback()
-        return None
+        # pg8000 повертає dict з кодом помилки PostgreSQL
+        err = e.args[0] if e.args else {}
+        if isinstance(err, dict) and err.get('C') == '23505':
+            return None  # username вже зайнятий
+        raise
     finally:
         conn.close()
 
