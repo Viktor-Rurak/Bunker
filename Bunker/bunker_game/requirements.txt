@@ -9,4 +9,4 @@ gunicorn==21.2.0
 gevent==24.10.3
 gevent-websocket==0.10.1
 google-generativeai
-psycopg2-binary==2.9.9
+pg8000==1.31.2

@@ -1,5 +1,6 @@
-import psycopg2
-import psycopg2.errors
+import pg8000.dbapi
+import urllib.parse
+import ssl
 import bcrypt
 import uuid
 import os
@@ -9,7 +10,18 @@ def _get_conn():
     url = os.environ.get('DATABASE_URL', '')
     if not url:
         raise RuntimeError('DATABASE_URL environment variable is not set')
-    return psycopg2.connect(url)
+    p = urllib.parse.urlparse(url)
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    return pg8000.dbapi.connect(
+        host=p.hostname,
+        port=p.port or 5432,
+        database=p.path.lstrip('/'),
+        user=p.username,
+        password=p.password,
+        ssl_context=ctx,
+    )
 
 
 def init_db():
@@ -46,7 +58,7 @@ def register_user(username: str, password: str):
         )
         conn.commit()
         return {'id': user_id, 'username': username, 'current_game_code': None}
-    except psycopg2.errors.UniqueViolation:
+    except pg8000.dbapi.IntegrityError:
         conn.rollback()
         return None
     finally:
