@@ -30,6 +30,7 @@ def auth_page():
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
+    import traceback
     data = request.json or {}
     username = data.get('username', '').strip()[:32]
     password = data.get('password', '').strip()[:64]
@@ -39,7 +40,11 @@ def api_register():
         return jsonify({'error': "Нікнейм мінімум 2 символи"}), 400
     if len(password) < 4:
         return jsonify({'error': "Пароль мінімум 4 символи"}), 400
-    user = register_user(username, password)
+    try:
+        user = register_user(username, password)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': f"DB error: {e}"}), 500
     if not user:
         return jsonify({'error': "Цей нікнейм вже зайнятий"}), 409
     session['user_id']  = user['id']
@@ -49,12 +54,17 @@ def api_register():
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
+    import traceback
     data = request.json or {}
     username = data.get('username', '').strip()[:32]
     password = data.get('password', '').strip()[:64]
     if not username or not password:
         return jsonify({'error': "Введіть нікнейм і пароль"}), 400
-    user = login_user(username, password)
+    try:
+        user = login_user(username, password)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': f"DB error: {e}"}), 500
     if not user:
         return jsonify({'error': "Невірний нікнейм або пароль"}), 401
     session['user_id']  = user['id']
